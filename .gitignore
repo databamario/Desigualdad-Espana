@@ -1,0 +1,32 @@
+# Python cache and compiled files
+__pycache__/
+*.pyc
+*.pyo
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Data and logs
+outputs/pickle_cache/
+data/validated/logs/
+
+# System files
+*.DS_Store
+Thumbs.db
+
+# Virtual environment
+venv/
+desigualdad/Lib/site-packages/
+desigualdad/Scripts/
+
+# Optional: exclude raw data if present
+data/raw/
+
+# Optional: exclude secrets/configs
+.env
+*.env
+secrets.json
+config.yaml
+
+# VSCode settings
+.vscode/
