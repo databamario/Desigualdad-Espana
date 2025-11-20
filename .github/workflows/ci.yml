@@ -85,7 +85,7 @@ jobs:
       - name: Check pickles encoding
         run: python scripts/check_pickles_encoding.py
       - name: Run full validation orchestrator (notebooks)
-        if: ${{ secrets.DB_CONNECTION_STRING != '' }}
+        if: env.DB_CONNECTION_STRING != ''
         run: python notebooks/00_etl/02_run_validation.py
       - name: Code quality checks (formatting & linting)
         run: |
@@ -120,7 +120,7 @@ jobs:
       
     steps:
       - name: Check DB secret (strict for nightly)
-        if: ${{ secrets.DB_CONNECTION_STRING == '' }}
+        if: env.DB_CONNECTION_STRING == ''
         run: |
           echo "❌ ERROR CRÍTICO: El job nocturno debe tener acceso a la base de datos."
           echo "   La variable DB_CONNECTION_STRING está vacía. Añade el secret en: Settings → Secrets and variables → Actions"
@@ -189,7 +189,7 @@ jobs:
       - name: Check pickles encoding
         run: python scripts/check_pickles_encoding.py
       - name: Run full validation orchestrator (notebooks)
-        if: ${{ secrets.DB_CONNECTION_STRING != '' }}
+        if: env.DB_CONNECTION_STRING != ''
         run: python notebooks/00_etl/02_run_validation.py
       - name: Code quality checks (formatting & linting)
         run: |
