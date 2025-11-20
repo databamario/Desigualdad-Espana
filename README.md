@@ -23,7 +23,7 @@ Pipeline ETL modular y profesional para análisis de desigualdad social en Espa�
 
 - Python 3.11+
 - SQL Server (local o remoto)
-- ODBC Driver 17 for SQL Server
+- ODBC Driver 18 for SQL Server
 
 ### 2. Configuración del Entorno
 
@@ -54,10 +54,10 @@ pip install -r requirements.txt
 2. Edita `.env` con tu configuración local:
    ```bash
    # Para Windows con autenticación integrada
-   DB_CONNECTION_STRING=DRIVER={ODBC Driver 17 for SQL Server};SERVER=localhost;DATABASE=desigualdad;Trusted_Connection=yes;
+   DB_CONNECTION_STRING=DRIVER={ODBC Driver 18 for SQL Server};SERVER=localhost;DATABASE=desigualdad;Trusted_Connection=yes;TrustServerCertificate=yes;
    
    # Para SQL Server con usuario y contraseña
-   DB_CONNECTION_STRING=DRIVER={ODBC Driver 17 for SQL Server};SERVER=localhost;DATABASE=desigualdad;UID=tu_usuario;PWD=tu_contraseña;
+   DB_CONNECTION_STRING=DRIVER={ODBC Driver 18 for SQL Server};SERVER=localhost;DATABASE=desigualdad;UID=tu_usuario;PWD=tu_contraseña;TrustServerCertificate=yes;
    ```
 
 3. **Nunca subas tu archivo `.env` al repositorio** - está excluido en `.gitignore`
@@ -147,7 +147,7 @@ python 02_run_validation.py
 Para que la ejecución automática en GitHub Actions pueda ejecutar la carga a SQL Server y las validaciones que requieren base de datos, debes configurar las credenciales como secretos en el repositorio:
 
 1. Ve a _Settings_ → _Secrets and variables_ → _Actions_ en GitHub.
-2. Crea un nuevo secret con nombre: `DB_CONNECTION_STRING` y como valor pon la cadena ODBC (ej.: `DRIVER={ODBC Driver 17 for SQL Server};SERVER=mi-servidor;DATABASE=desigualdad;UID=usuario;PWD=contraseña;`).
+2. Crea un nuevo secret con nombre: `DB_CONNECTION_STRING` y como valor pon la cadena ODBC (ej.: `DRIVER={ODBC Driver 18 for SQL Server};SERVER=mi-servidor;DATABASE=desigualdad;UID=usuario;PWD=contraseña;TrustServerCertificate=yes;`).
 
 Nota: si no defines `DB_CONNECTION_STRING` en los secrets, el pipeline **no fallará**: el paso de Carga SQL (`01c_load_to_sql`) será omitido en CI y la validación basada en BD no se ejecutará. Esto es útil para Pull Requests y pruebas sin credenciales.
 

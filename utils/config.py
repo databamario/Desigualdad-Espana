@@ -38,5 +38,5 @@ CORRECTION_PROTOCOL = {
 # Carga desde variable de entorno, con fallback a valor por defecto
 DB_CONNECTION_STRING = os.environ.get(
     'DB_CONNECTION_STRING',
-    'DRIVER={ODBC Driver 17 for SQL Server};SERVER=localhost;DATABASE=desigualdad;Trusted_Connection=yes;'
+    'DRIVER={ODBC Driver 18 for SQL Server};SERVER=localhost;DATABASE=desigualdad;Trusted_Connection=yes;TrustServerCertificate=yes;'
 )

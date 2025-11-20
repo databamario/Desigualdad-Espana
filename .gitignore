@@ -50,3 +50,6 @@ DEBUG_*.txt
 # Temporary notebooks created while debugging
 tmp_*.ipynb
 tmp/
+
+#generados automaticamente
+htmlcov/
