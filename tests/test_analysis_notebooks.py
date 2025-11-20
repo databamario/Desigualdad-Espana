@@ -6,9 +6,12 @@ and to assert that the pivot with columns D1..D10 is present for 2019 and 2023.
 """
 
 from pathlib import Path
+
 import pandas as pd
 import pytest
-from src.notebook_fixtures import load_pickles_to_namespace, normalize_decile_columns
+
+from src.notebook_fixtures import (load_pickles_to_namespace,
+                                   normalize_decile_columns)
 
 
 @pytest.mark.integration

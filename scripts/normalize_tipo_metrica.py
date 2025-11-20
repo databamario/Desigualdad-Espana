@@ -12,15 +12,18 @@ Run `python scripts/normalize_tipo_metrica.py --help` for more options.
 import argparse
 import pickle
 import shutil
+import sys
 from datetime import datetime
 from pathlib import Path
+
 import pandas as pd
-import sys
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
-from utils.validation_framework import normalize_tipo_metrica
+
+# Imports del proyecto (después de configurar sys.path)
+from utils.validation_framework import normalize_tipo_metrica  # noqa: E402
 
 
 def find_project_root():

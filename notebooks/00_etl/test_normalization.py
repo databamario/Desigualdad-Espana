@@ -5,15 +5,17 @@ Verifica que la función normalize_for_sql() funciona correctamente
 antes de ejecutar el ETL completo.
 """
 
-import pandas as pd
 import sys
 from pathlib import Path
+
+import pandas as pd
 
 # Setup path
 project_root = Path.cwd().parent.parent
 sys.path.insert(0, str(project_root))
 
-from src.notebook_fixtures import normalize_decile_columns
+# Imports del proyecto (después de configurar sys.path)
+from src.notebook_fixtures import normalize_decile_columns  # noqa: E402
 
 
 # 🔧 Función de Normalización Master (copiada del notebook)
@@ -34,7 +36,7 @@ def normalize_for_sql(df: pd.DataFrame, table_name: str) -> pd.DataFrame:
             max_gini = pd.to_numeric(df["Gini"], errors="coerce").max()
             if max_gini > 1:
                 df["Gini"] = df["Gini"] / 100.0
-        except Exception as e:
+        except Exception:
             pass
 
     # 3️⃣ Conversión Series → escalares

@@ -1,8 +1,9 @@
-from pathlib import Path
-import pandas as pd
 import sqlite3
-from typing import Dict
 import unicodedata
+from pathlib import Path
+from typing import Dict
+
+import pandas as pd
 
 
 def normalize_text_for_merge(val):

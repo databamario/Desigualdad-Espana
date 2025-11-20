@@ -1,4 +1,5 @@
 from pathlib import Path
+
 import pandas as pd
 
 project_root = Path("c:/Users/mario/Desktop/Projects/desigualdad_social_etl")

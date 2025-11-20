@@ -150,18 +150,6 @@ INE_VALIDATION_RULES = {
         "range_checks": {"Poblacion": (0, 50000000), "Anio": (2002, 2025)},
         "expected_years": range(2002, 2024),
     },
-    "INE_Umbral_Pobreza_Hogar": {
-        "primary_key": [
-            "Anio",
-            "Tipo_Hogar",
-            "Grupo_Edad",
-            "Sexo",
-        ],  # Incluir todas las dimensiones
-        "critical_columns": ["Anio", "Tipo_Hogar", "Grupo_Edad", "Sexo", "Poblacion"],
-        "expected_columns": ["Anio", "Tipo_Hogar", "Grupo_Edad", "Sexo", "Poblacion"],
-        "range_checks": {"Poblacion": (0, 50000000), "Anio": (2002, 2025)},
-        "expected_years": range(2013, 2024),
-    },
     "INE_Renta_Media_Decil": {
         "primary_key": ["Anio", "Decil"],
         "critical_columns": ["Anio", "Decil", "Renta_Media"],

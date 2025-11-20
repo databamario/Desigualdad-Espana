@@ -7,12 +7,12 @@ Autor: Proyecto Desigualdad Social ETL
 Fecha: 2025-11-13
 """
 
-import pandas as pd
-import numpy as np
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Tuple, Optional, Any
+from typing import Any, Dict, List, Optional
+
+import pandas as pd
 
 
 class ValidationReport:
@@ -487,14 +487,6 @@ def normalize_tipo_metrica(series: pd.Series) -> pd.Series:
     """
     if series is None:
         return series
-
-    canonical_map = {
-        "variacion anual": "Variación anual",
-        "variacion mensual": "Variación mensual",
-        "variacion en lo que va de ano": "Variación en lo que va de año",
-        "indice": "Índice",
-        "indice ": "Índice",
-    }
 
     def _map_value(v):
         if pd.isna(v):

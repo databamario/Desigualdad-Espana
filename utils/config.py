@@ -5,6 +5,7 @@ Umbrales y parámetros globales para la validación de datos.
 """
 
 import os
+
 from dotenv import load_dotenv
 
 # Cargar variables de entorno desde .env

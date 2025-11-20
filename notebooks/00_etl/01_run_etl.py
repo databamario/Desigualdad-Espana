@@ -11,11 +11,11 @@ Uso:
     python run_etl.py
 """
 
+import os
 import subprocess
 import sys
-import os
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
 
 def ejecutar_notebook(notebook_path):

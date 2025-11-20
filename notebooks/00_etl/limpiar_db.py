@@ -1,12 +1,14 @@
-import pyodbc
 import sys
 from pathlib import Path
+
+import pyodbc
 
 # Añadir la ruta base del proyecto al sys.path
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from utils.config import DB_CONNECTION_STRING
+# Imports del proyecto (después de configurar sys.path)
+from utils.config import DB_CONNECTION_STRING  # noqa: E402
 
 conn = pyodbc.connect(DB_CONNECTION_STRING)
 cursor = conn.cursor()

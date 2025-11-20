@@ -1,6 +1,5 @@
-import json
-from pathlib import Path
 import re
+from pathlib import Path
 
 nb_path = Path(
     "notebooks/01_analisis_nacional/02_analisis_indicadores_principales.ipynb"

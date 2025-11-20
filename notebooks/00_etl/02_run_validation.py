@@ -15,10 +15,10 @@ Autor: Proyecto Desigualdad Social ETL
 Fecha: 2025-11-13
 """
 
+import json
+import os
 import subprocess
 import sys
-import os
-import json
 from datetime import datetime
 from pathlib import Path
 
@@ -78,7 +78,7 @@ def analyze_validation_logs(logs_dir: str = "../data/validated/logs") -> dict:
                         "error_count": len(errors),
                         "warning_count": len(warnings),
                     }
-        except Exception as e:
+        except Exception:
             continue
 
     # Agrupar por estado
@@ -114,7 +114,7 @@ def run_notebook(notebook_path: str) -> bool:
     """
     try:
         # Ejecutar notebook con jupyter nbconvert (sin output detallado)
-        result = subprocess.run(
+        subprocess.run(
             [
                 "jupyter",
                 "nbconvert",
@@ -136,7 +136,7 @@ def run_notebook(notebook_path: str) -> bool:
         return False
     except FileNotFoundError:
         print(
-            f"\n[ERR] Error: jupyter nbconvert no encontrado. Instalar con: pip install nbconvert"
+            "\n[ERR] Error: jupyter nbconvert no encontrado. Instalar con: pip install nbconvert"
         )
         return False
 

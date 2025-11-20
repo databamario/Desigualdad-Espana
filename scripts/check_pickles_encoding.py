@@ -3,10 +3,10 @@
 Check pickles for corrupted strings (mojibake or replacement chars).
 Exits with code 1 if corruption is detected.
 """
-from pathlib import Path
 import pickle
-import sys
 import re
+import sys
+from pathlib import Path
 from typing import List
 
 BASE_DIR = Path(__file__).resolve().parent.parent

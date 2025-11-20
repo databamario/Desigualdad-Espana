@@ -5,17 +5,20 @@ Usage: python scripts/check_pickles.py [--no-abort]
 Returns exit code 0 if all ok, 1 otherwise.
 """
 import argparse
+import sys
 
 # Imports and config
 from pathlib import Path
-import sys
+
 import pandas as pd
 
 # Ensure `src` package can be imported when running the script from scripts/ directory
 BASE_DIR = Path(__file__).resolve().parent.parent
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
-from src.config import CACHE_DIR
+
+# Imports del proyecto (después de configurar sys.path)
+from src.config import CACHE_DIR  # noqa: E402
 
 CRITICAL_PICKLES = ["df_ipc_sectorial.pkl", "df_gini_ccaa.pkl", "df_epf_gasto.pkl"]
 

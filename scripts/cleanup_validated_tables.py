@@ -11,13 +11,16 @@ Autor: Proyecto Desigualdad Social ETL
 Fecha: 2025-11-13
 """
 
-import pyodbc
-import sys
 import os
+import sys
+
+import pyodbc
 
 # Añadir la ruta base del proyecto al sys.path para importar utils correctamente
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from utils.config import DB_CONNECTION_STRING
+
+# Imports del proyecto (después de configurar sys.path)
+from utils.config import DB_CONNECTION_STRING  # noqa: E402
 
 
 def cleanup_validated_tables():

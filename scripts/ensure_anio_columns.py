@@ -6,15 +6,18 @@ This is meant to be run after extraction notebooks and before the load stage.
 """
 
 import pickle
-from pathlib import Path
-import pandas as pd
 import sys
+from pathlib import Path
 from pathlib import Path as _Path
+
+import pandas as pd
 
 BASE_DIR = _Path(__file__).resolve().parent.parent
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
-from utils.validation_framework import normalize_tipo_metrica
+
+# Imports del proyecto (después de configurar sys.path)
+from utils.validation_framework import normalize_tipo_metrica  # noqa: E402
 
 
 def find_project_root():

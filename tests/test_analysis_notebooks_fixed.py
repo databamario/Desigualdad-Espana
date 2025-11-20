@@ -1,13 +1,13 @@
 import json
-from pathlib import Path
 import shutil
-import pandas as pd
-from nbclient import NotebookClient
-import nbformat
-import sqlite3
-import pytest
+from pathlib import Path
 
-from src.notebook_fixtures import load_pickles_to_namespace, normalize_decile_columns
+import nbformat
+import pandas as pd
+import pytest
+from nbclient import NotebookClient
+
+from src.notebook_fixtures import (normalize_decile_columns)
 
 
 def run_notebook(nb_path: Path):

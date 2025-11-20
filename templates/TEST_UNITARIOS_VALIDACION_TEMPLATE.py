@@ -3,13 +3,10 @@ Ejemplo de test unitario para funciones de validación automática.
 Utiliza pytest para asegurar que las funciones detectan correctamente outliers y discrepancias.
 """
 
-import pytest
 import pandas as pd
-from VALIDACION_AUTOMATICA_TEMPLATE import (
-    validar_rangos,
-    comparar_fuentes,
-    ValidationWarnings,
-)
+import pytest
+from VALIDACION_AUTOMATICA_TEMPLATE import (ValidationWarnings,
+                                            comparar_fuentes, validar_rangos)
 
 
 def test_validar_rangos_outliers():

@@ -1,5 +1,4 @@
 import sqlite3
-from pathlib import Path
 
 conn = sqlite3.connect("tmp_test_db.sqlite")
 cur = conn.cursor()

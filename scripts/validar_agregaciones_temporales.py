@@ -11,10 +11,10 @@ Fase 3 - Coherencia Analítica
 """
 
 import pickle
-from pathlib import Path
-import pandas as pd
-import numpy as np
 from datetime import datetime
+from pathlib import Path
+
+import numpy as np
 
 
 def find_project_root():
@@ -111,16 +111,16 @@ try:
         print(
             f"   ⚠️  Años sin datos EPF (esperado en diseño bienal): {sorted(anios_faltantes)}"
         )
-        print(f"   ✅ CORRECTO: EPF no tiene datos para años impares/intermedios")
+        print("   ✅ CORRECTO: EPF no tiene datos para años impares/intermedios")
     else:
-        print(f"   ℹ️  No hay gaps en la serie (inusual para EPF bienal)")
+        print("   ℹ️  No hay gaps en la serie (inusual para EPF bienal)")
 
     # Recomendaciones
     print("\n📋 Recomendaciones de uso:")
     print(f"   ✅ Usar EPF solo para años: {anios_epf}")
-    print(f"   ❌ NO interpolar linealmente para años intermedios")
+    print("   ❌ NO interpolar linealmente para años intermedios")
     print(
-        f"   ⚠️  Para análisis temporal continuo, cruzar con IPC anual (disponible todos los años)"
+        "   ⚠️  Para análisis temporal continuo, cruzar con IPC anual (disponible todos los años)"
     )
 
 except FileNotFoundError:
@@ -174,14 +174,14 @@ try:
         pre_2021 = df_ipc_anual[df_ipc_anual["Anio"] < 2021]["IPC_Medio_Anual"]
 
         if not post_2021.empty and (post_2021 > 100).all():
-            print(f"   ✅ Post-2021: todos los valores > 100 (inflación acumulada)")
+            print("   ✅ Post-2021: todos los valores > 100 (inflación acumulada)")
         elif not post_2021.empty:
-            print(f"   ⚠️  Post-2021: algunos valores ≤ 100 (verificar base)")
+            print("   ⚠️  Post-2021: algunos valores ≤ 100 (verificar base)")
 
         if not pre_2021.empty and (pre_2021 < 100).all():
-            print(f"   ✅ Pre-2021: todos los valores < 100 (base retroactiva)")
+            print("   ✅ Pre-2021: todos los valores < 100 (base retroactiva)")
         elif not pre_2021.empty:
-            print(f"   ⚠️  Pre-2021: algunos valores ≥ 100 (verificar base)")
+            print("   ⚠️  Pre-2021: algunos valores ≥ 100 (verificar base)")
 
     # Validar Inflacion_Anual_%
     if "Inflacion_Anual_%" in df_ipc_anual.columns:
@@ -231,7 +231,7 @@ try:
     if not gaps_ipc:
         print(f"   ✅ Serie continua sin gaps: {anios_ipc[0]} - {anios_ipc[-1]}")
     else:
-        print(f"   ⚠️  Gaps detectados:")
+        print("   ⚠️  Gaps detectados:")
         for gap in gaps_ipc:
             print(f"      - Entre {gap[0]} y {gap[1]}")
 
@@ -291,12 +291,12 @@ try:
                     f"\n   ✅ CRÍTICO: 'Variación anual' tiene 0% nulls ({len(var_anual)} registros)"
                 )
                 print(
-                    f"   ✅ Esta métrica es segura para análisis de inflación diferencial"
+                    "   ✅ Esta métrica es segura para análisis de inflación diferencial"
                 )
             else:
                 pct = (nulls_var_anual / len(var_anual)) * 100
                 print(f"\n   ⚠️  CRÍTICO: 'Variación anual' tiene {pct:.1f}% nulls")
-                print(f"   ⚠️  Puede afectar análisis de inflación diferencial")
+                print("   ⚠️  Puede afectar análisis de inflación diferencial")
 
     # Validar categorías ECOICOP
     if "Categoria_ECOICOP" in df_ipc_sect.columns:
@@ -330,7 +330,7 @@ try:
     anios_ipc = set(df_ipc_anual["Anio"].unique())
     anios_epf_set = set(anios_epf)
 
-    print(f"\n📊 Rangos temporales por fuente:")
+    print("\n📊 Rangos temporales por fuente:")
     print(
         f"   ECV (Gini):  {min(anios_gini)} - {max(anios_gini)} ({len(anios_gini)} años)"
     )
@@ -342,7 +342,7 @@ try:
     )
 
     # Intersecciones
-    print(f"\n🔍 Intersecciones temporales:")
+    print("\n🔍 Intersecciones temporales:")
 
     gini_ipc = anios_gini & anios_ipc
     gini_epf = anios_gini & anios_epf_set
@@ -355,7 +355,7 @@ try:
     print(f"   ECV ∩ IPC ∩ EPF:   {len(todos)} años ({sorted(todos)})")
 
     # Años solo en una fuente
-    print(f"\n🔍 Años exclusivos de cada fuente:")
+    print("\n🔍 Años exclusivos de cada fuente:")
 
     solo_gini = anios_gini - anios_ipc - anios_epf_set
     solo_ipc = anios_ipc - anios_gini - anios_epf_set
@@ -364,20 +364,20 @@ try:
     if solo_gini:
         print(f"   Solo ECV: {sorted(solo_gini)}")
     else:
-        print(f"   ✅ ECV: no hay años exclusivos")
+        print("   ✅ ECV: no hay años exclusivos")
 
     if solo_ipc:
         print(f"   Solo IPC: {sorted(solo_ipc)}")
     else:
-        print(f"   ✅ IPC: no hay años exclusivos")
+        print("   ✅ IPC: no hay años exclusivos")
 
     if solo_epf:
         print(f"   Solo EPF: {sorted(solo_epf)}")
     else:
-        print(f"   ✅ EPF: no hay años exclusivos")
+        print("   ✅ EPF: no hay años exclusivos")
 
     # Recomendaciones para análisis cruzado
-    print(f"\n📋 Recomendaciones para análisis cruzado:")
+    print("\n📋 Recomendaciones para análisis cruzado:")
 
     if len(todos) >= 5:
         print(f"   ✅ Análisis ECV+IPC+EPF: usar años {sorted(todos)}")

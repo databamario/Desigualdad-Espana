@@ -1,4 +1,5 @@
 from pathlib import Path
+
 import pandas as pd
 
 pickle = Path("outputs") / "pickle_cache" / "df_umbral_limpio.pkl"

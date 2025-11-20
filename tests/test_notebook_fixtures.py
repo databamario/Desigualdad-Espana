@@ -1,7 +1,8 @@
+
 import pandas as pd
-from pathlib import Path
-from src.notebook_fixtures import normalize_columns, normalize_umbral_dataframe
-from src.notebook_fixtures import normalize_decile_columns
+
+from src.notebook_fixtures import (normalize_columns, normalize_decile_columns,
+                                   normalize_umbral_dataframe)
 
 
 def test_normalize_columns_anio_alias():

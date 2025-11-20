@@ -7,6 +7,7 @@ Fase 1 - Critical Fix para coherencia analítica
 
 import pickle
 from pathlib import Path
+
 import pandas as pd
 
 

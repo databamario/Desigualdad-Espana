@@ -8,13 +8,12 @@ Autor: Proyecto Desigualdad España
 Fecha: 2025-11-17
 """
 
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-from typing import Dict, List, Tuple, Optional, Union
 import warnings
+from typing import Dict, List, Optional, Tuple
 
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 
 # =============================================================================
 # FUNCIONES DE VALIDACIÓN BÁSICA
@@ -184,7 +183,7 @@ def validar_rango(
             print(f"\n[ERR] {len(fuera_rango)} registro(s) fuera de rango:")
             print(fuera_rango.to_string(index=False))
         else:
-            print(f"\n[OK] Todos los valores están dentro del rango esperado")
+            print("\n[OK] Todos los valores están dentro del rango esperado")
 
     return fuera_rango
 
@@ -313,7 +312,7 @@ def validar_continuidad_temporal(
                 print(f"\n  {grupo}:")
                 print(f"    Años faltantes: {años}")
         else:
-            print(f"\n[OK] Continuidad temporal completa (sin gaps)")
+            print("\n[OK] Continuidad temporal completa (sin gaps)")
 
     return gaps_encontrados
 
@@ -399,7 +398,7 @@ def validar_consistencia_valores(
             print(f"\n[ERR] {len(inconsistencias)} registro(s) con inconsistencias:")
             print(inconsistencias.to_string(index=False))
         else:
-            print(f"\n[OK] Todas las condiciones se cumplen")
+            print("\n[OK] Todas las condiciones se cumplen")
 
     return inconsistencias
 
