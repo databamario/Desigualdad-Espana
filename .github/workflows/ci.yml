@@ -14,8 +14,8 @@ jobs:
     env:
       # Inject DB connection string from GitHub secrets (set in repository settings)
       DB_CONNECTION_STRING: ${{ secrets.DB_CONNECTION_STRING }}
-      # If DB_CONNECTION_STRING is empty, SKIP_DB_LOAD becomes 'true' to avoid failing the load step
-      SKIP_DB_LOAD: ${{ secrets.DB_CONNECTION_STRING == '' }}
+      # Skip DB load if secret is empty OR contains placeholder values (localhost, tu-servidor, usuario, etc.)
+      SKIP_DB_LOAD: ${{ secrets.DB_CONNECTION_STRING == '' || contains(secrets.DB_CONNECTION_STRING, 'localhost') || contains(secrets.DB_CONNECTION_STRING, 'tu-servidor') || contains(secrets.DB_CONNECTION_STRING, 'usuario') }}
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
@@ -112,7 +112,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       DB_CONNECTION_STRING: ${{ secrets.DB_CONNECTION_STRING }}
-      SKIP_DB_LOAD: ${{ secrets.DB_CONNECTION_STRING == '' }}
+      # Skip DB load if secret is empty OR contains placeholder values
+      SKIP_DB_LOAD: ${{ secrets.DB_CONNECTION_STRING == '' || contains(secrets.DB_CONNECTION_STRING, 'localhost') || contains(secrets.DB_CONNECTION_STRING, 'tu-servidor') || contains(secrets.DB_CONNECTION_STRING, 'usuario') }}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
