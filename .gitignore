@@ -30,3 +30,8 @@ config.yaml
 
 # VSCode settings
 .vscode/
+
+# Do not upload large or non-final notebooks for synthesis and regional/european analysis
+notebooks/06_sintesis/
+notebooks/02_analisis_regional/
+notebooks/03_comparativa_europa/
