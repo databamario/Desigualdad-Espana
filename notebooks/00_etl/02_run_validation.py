@@ -140,10 +140,18 @@ def run_notebook(notebook_path: str) -> bool:
 def main():
     """Función principal del orquestador"""
     
+    # Skip validation if DB_CONNECTION_STRING is not available (CI without DB)
+    skip_db_load = os.environ.get('SKIP_DB_LOAD', 'false').lower() in ('1', 'true', 'yes')
+    
     print("="*80)
     print("VALIDACIÓN DE DATOS - DESIGUALDAD SOCIAL")
     print("="*80)
     print(f"Inicio: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+    
+    if skip_db_load:
+        print("[INFO] SKIP_DB_LOAD is set -> Skipping validation (requires DB connection)")
+        print("   Validation notebooks require SQL Server access and will not run in CI without DB.")
+        return True
     
     # Definir notebooks a ejecutar (en orden)
     notebooks = [
@@ -183,11 +191,16 @@ def main():
             print("[OK]")
         else:
             print("[ERR]")
-            print(f"\n[WARN]  Error en {notebook}. ¿Continuar? (SI/NO): ", end='')
-            response = input().strip().upper()
-            if response != 'SI':
-                print("\n[ERR] Validación interrumpida por el usuario")
-                break
+            # In CI environments, auto-continue on error instead of prompting
+            is_ci = os.environ.get('CI', 'false').lower() == 'true'
+            if is_ci:
+                print(f"\n[WARN]  Error en {notebook}. Continuando en modo CI...")
+            else:
+                print(f"\n[WARN]  Error en {notebook}. ¿Continuar? (SI/NO): ", end='')
+                response = input().strip().upper()
+                if response != 'SI':
+                    print("\n[ERR] Validación interrumpida por el usuario")
+                    break
     
     # Resumen final
     print("\n" + "="*80)
