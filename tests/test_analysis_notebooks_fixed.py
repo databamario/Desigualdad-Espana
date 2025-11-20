@@ -7,7 +7,7 @@ import pandas as pd
 import pytest
 from nbclient import NotebookClient
 
-from src.notebook_fixtures import (normalize_decile_columns)
+from src.notebook_fixtures import normalize_decile_columns
 
 
 def run_notebook(nb_path: Path):

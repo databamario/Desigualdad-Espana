@@ -5,8 +5,11 @@ Utiliza pytest para asegurar que las funciones detectan correctamente outliers y
 
 import pandas as pd
 import pytest
-from VALIDACION_AUTOMATICA_TEMPLATE import (ValidationWarnings,
-                                            comparar_fuentes, validar_rangos)
+from VALIDACION_AUTOMATICA_TEMPLATE import (
+    ValidationWarnings,
+    comparar_fuentes,
+    validar_rangos,
+)
 
 
 def test_validar_rangos_outliers():

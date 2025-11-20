@@ -10,8 +10,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from src.notebook_fixtures import (load_pickles_to_namespace,
-                                   normalize_decile_columns)
+from src.notebook_fixtures import load_pickles_to_namespace, normalize_decile_columns
 
 
 @pytest.mark.integration
