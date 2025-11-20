@@ -10,6 +10,7 @@ from pathlib import Path
 import pandas as pd
 import sys
 from pathlib import Path as _Path
+
 BASE_DIR = _Path(__file__).resolve().parent.parent
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
@@ -19,48 +20,49 @@ from utils.validation_framework import normalize_tipo_metrica
 def find_project_root():
     p = Path.cwd()
     while p != p.parent:
-        if (p / '.git').exists() or (p / 'README.md').exists():
+        if (p / ".git").exists() or (p / "README.md").exists():
             return p
         p = p.parent
     return Path.cwd()
 
-project_root = find_project_root()
-CACHE_DIR = project_root / 'outputs' / 'pickle_cache'
 
-PICKLES = [p for p in CACHE_DIR.glob('*.pkl')]
+project_root = find_project_root()
+CACHE_DIR = project_root / "outputs" / "pickle_cache"
+
+PICKLES = [p for p in CACHE_DIR.glob("*.pkl")]
 
 print(f"Cache dir: {CACHE_DIR}")
 print(f"Total pickles: {len(PICKLES)}")
 
 # We'll check for these variants and rename to 'Anio'
-VARIANTS = ['Año', 'Anyo', 'A�o']
+VARIANTS = ["Año", "Anyo", "A�o"]
 
 fixed = []
 for p in PICKLES:
     try:
-        with open(p, 'rb') as f:
+        with open(p, "rb") as f:
             df = pickle.load(f)
         if not isinstance(df, pd.DataFrame):
             continue
         cols = df.columns.tolist()
         rename = {}
-        for bad in ['Año', 'Anyo', 'A�o']:
-            if bad in cols and 'Anio' not in cols:
-                rename[bad] = 'Anio'
+        for bad in ["Año", "Anyo", "A�o"]:
+            if bad in cols and "Anio" not in cols:
+                rename[bad] = "Anio"
         modified = False
         if rename:
             df = df.rename(columns=rename)
             modified = True
         # Normalize Tipo_Metrica if present
-        if 'Tipo_Metrica' in df.columns:
+        if "Tipo_Metrica" in df.columns:
             df = df.copy()
-            df['Tipo_Metrica'] = normalize_tipo_metrica(df['Tipo_Metrica'])
+            df["Tipo_Metrica"] = normalize_tipo_metrica(df["Tipo_Metrica"])
             modified = True
 
         # If we made modifications (rename or normalization), write back pickle
         if modified:
             try:
-                with open(p, 'wb') as f:
+                with open(p, "wb") as f:
                     pickle.dump(df, f)
                 fixed.append((p.name, rename))
             except Exception as e:

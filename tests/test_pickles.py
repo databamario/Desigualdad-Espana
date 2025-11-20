@@ -1,8 +1,9 @@
 import pandas as pd
 from pathlib import Path
+
 BASE_DIR = Path(__file__).resolve().parent.parent
-CACHE_DIR = BASE_DIR / 'outputs' / 'pickle_cache'
-CRITICAL_PICKLES = ['df_ipc_sectorial.pkl', 'df_gini_ccaa.pkl', 'df_epf_gasto.pkl']
+CACHE_DIR = BASE_DIR / "outputs" / "pickle_cache"
+CRITICAL_PICKLES = ["df_ipc_sectorial.pkl", "df_gini_ccaa.pkl", "df_epf_gasto.pkl"]
 
 
 def test_critical_pickles_exist_and_non_empty():

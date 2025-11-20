@@ -12,20 +12,24 @@ conn = pyodbc.connect(DB_CONNECTION_STRING)
 cursor = conn.cursor()
 
 # Obtener todas las tablas
-cursor.execute("""
+cursor.execute(
+    """
     SELECT TABLE_NAME 
     FROM INFORMATION_SCHEMA.TABLES 
     WHERE TABLE_TYPE = 'BASE TABLE' 
       AND TABLE_NAME NOT LIKE 'sys%'
     ORDER BY TABLE_NAME
-""")
+"""
+)
 tablas = [r[0] for r in cursor.fetchall()]
 
 print(f"[LIST] Tablas a eliminar: {len(tablas)}")
 for t in tablas:
     print(f"  - {t}")
 
-confirmacion = input("\n[WARN]  ¿Confirmar eliminación de TODAS las tablas? (escribir SI): ")
+confirmacion = input(
+    "\n[WARN]  ¿Confirmar eliminación de TODAS las tablas? (escribir SI): "
+)
 
 if confirmacion.strip().upper() == "SI":
     print("\n[INFO]  Eliminando tablas...")
@@ -35,7 +39,7 @@ if confirmacion.strip().upper() == "SI":
             print(f"  [OK] {tabla}")
         except Exception as e:
             print(f"  [ERR] {tabla}: {e}")
-    
+
     conn.commit()
     print("\n[OK] Base de datos limpiada")
 else:
