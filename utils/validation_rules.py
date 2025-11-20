@@ -7,18 +7,18 @@ Configuración declarativa de las reglas de validación específicas para cada t
 # Reglas de validación para tablas INE
 INE_VALIDATION_RULES = {
     'INE_AROPE_Hogar': {
-        'primary_key': ['Año', 'Tipo_Hogar', 'Indicador'],
-        'critical_columns': ['Año', 'Tipo_Hogar', 'Indicador', 'Valor'],
-        'expected_columns': ['Año', 'Tipo_Hogar', 'Indicador', 'Valor'],
+        'primary_key': ['Anio', 'Tipo_Hogar', 'Indicador'],
+        'critical_columns': ['Anio', 'Tipo_Hogar', 'Indicador', 'Valor'],
+        'expected_columns': ['Anio', 'Tipo_Hogar', 'Indicador', 'Valor'],
         'expected_types': {
-            'Año': int,
+            'Anio': int,
             'Tipo_Hogar': str,
             'Indicador': str,
             'Valor': float
         },
         'range_checks': {
             'Valor': (0, 100),
-            'Año': (2007, 2025)
+            'Anio': (2007, 2025)
         },
         'expected_years': range(2013, 2024),
         'exclude_categories': {
@@ -37,18 +37,18 @@ INE_VALIDATION_RULES = {
     },
     
     'INE_AROPE_CCAA': {
-        'primary_key': ['Año', 'CCAA', 'Indicador'],
-        'critical_columns': ['Año', 'CCAA', 'Indicador', 'Valor'],
-        'expected_columns': ['Año', 'CCAA', 'Indicador', 'Valor'],
+        'primary_key': ['Anio', 'CCAA', 'Indicador'],
+        'critical_columns': ['Anio', 'CCAA', 'Indicador', 'Valor'],
+        'expected_columns': ['Anio', 'CCAA', 'Indicador', 'Valor'],
         'expected_types': {
-            'Año': int,
+            'Anio': int,
             'CCAA': str,
             'Indicador': str,
             'Valor': float
         },
         'range_checks': {
             'Valor': (0, 100),
-            'Año': (2007, 2025)
+            'Anio': (2007, 2025)
         },
         'expected_years': range(2008, 2024),
         'coherence_checks': {
@@ -58,11 +58,11 @@ INE_VALIDATION_RULES = {
     },
     
     'INE_AROPE_Edad_Sexo': {
-        'primary_key': ['Año', 'Edad', 'Sexo', 'Indicador'],
-        'critical_columns': ['Año', 'Edad', 'Sexo', 'Indicador', 'Valor'],
-        'expected_columns': ['Año', 'Edad', 'Sexo', 'Indicador', 'Valor'],
+        'primary_key': ['Anio', 'Edad', 'Sexo', 'Indicador'],
+        'critical_columns': ['Anio', 'Edad', 'Sexo', 'Indicador', 'Valor'],
+        'expected_columns': ['Anio', 'Edad', 'Sexo', 'Indicador', 'Valor'],
         'expected_types': {
-            'Año': int,
+            'Anio': int,
             'Edad': str,
             'Sexo': str,
             'Indicador': str,
@@ -70,17 +70,17 @@ INE_VALIDATION_RULES = {
         },
         'range_checks': {
             'Valor': (0, 100),
-            'Año': (2007, 2025)
+            'Anio': (2007, 2025)
         },
         'expected_years': range(2008, 2024)
     },
     
     'INE_AROPE_Laboral': {
-        'primary_key': ['Año', 'Sexo', 'Situacion_Laboral', 'Territorio'],
-        'critical_columns': ['Año', 'Sexo', 'Situacion_Laboral', 'Territorio', 'AROPE'],
-        'expected_columns': ['Sexo', 'Situacion_Laboral', 'Territorio', 'Año', 'AROPE'],
+        'primary_key': ['Anio', 'Sexo', 'Situacion_Laboral', 'Territorio'],
+        'critical_columns': ['Anio', 'Sexo', 'Situacion_Laboral', 'Territorio', 'AROPE'],
+        'expected_columns': ['Sexo', 'Situacion_Laboral', 'Territorio', 'Anio', 'AROPE'],
         'expected_types': {
-            'Año': int,
+            'Anio': int,
             'Sexo': str,
             'Situacion_Laboral': str,
             'Territorio': str,
@@ -88,24 +88,24 @@ INE_VALIDATION_RULES = {
         },
         'range_checks': {
             'AROPE': (0, 100),  # Porcentaje
-            'Año': (2007, 2025)
+            'Anio': (2007, 2025)
         },
         'expected_years': range(2013, 2024)
     },
     
     'INE_IPC_Nacional': {  # Antes: INE_IPC_Anual
-        'primary_key': ['Año'],
-        'critical_columns': ['Año', 'IPC_Medio_Anual'],  # Inflacion_Anual_% puede ser NULL en 2002
-        'expected_columns': ['Año', 'IPC_Medio_Anual', 'Inflacion_Anual_%'],
+        'primary_key': ['Anio'],
+        'critical_columns': ['Anio', 'IPC_Medio_Anual'],  # Inflacion_Anual_% puede ser NULL en 2002
+        'expected_columns': ['Anio', 'IPC_Medio_Anual', 'Inflacion_Anual_%'],
         'expected_types': {
-            'Año': int,
+            'Anio': int,
             'IPC_Medio_Anual': float,
             'Inflacion_Anual_%': float
         },
         'range_checks': {
             'IPC_Medio_Anual': (50, 150),  # Índice base 100
             'Inflacion_Anual_%': (-5, 20),  # Inflación razonable
-            'Año': (2002, 2025)
+            'Anio': (2002, 2025)
         },
         'expected_years': range(2002, 2025),
         'coherence_checks': {
@@ -125,7 +125,7 @@ INE_VALIDATION_RULES = {
             'S80/S20': float
         },
         'range_checks': {
-            'Gini': (0, 100),  # Gini * 100
+            'Gini': (0, 1),  # Gini normalizado (0=igualdad perfecta, 1=máxima desigualdad)
             'S80/S20': (1, 20),  # Ratio quintil 5/quintil 1
             'Año': (2007, 2025)
         },
@@ -133,11 +133,11 @@ INE_VALIDATION_RULES = {
     },
     
     'INE_Poblacion_Edad_Sexo_CCAA': {
-        'primary_key': ['Año', 'CCAA', 'Sexo', 'Edad'],  # Sexo es parte de la clave
-        'critical_columns': ['Año', 'CCAA', 'Sexo', 'Edad', 'Poblacion'],
-        'expected_columns': ['Año', 'CCAA', 'Sexo', 'Edad', 'Poblacion'],
+        'primary_key': ['Anio', 'CCAA', 'Sexo', 'Edad'],  # Sexo es parte de la clave
+        'critical_columns': ['Anio', 'CCAA', 'Sexo', 'Edad', 'Poblacion'],
+        'expected_columns': ['Anio', 'CCAA', 'Sexo', 'Edad', 'Poblacion'],
         'expected_types': {
-            'Año': int,
+            'Anio': int,
             'CCAA': str,
             'Sexo': str,
             'Edad': str,
@@ -145,177 +145,185 @@ INE_VALIDATION_RULES = {
         },
         'range_checks': {
             'Poblacion': (0, 50000000),  # Total nacional puede superar 10M
-            'Año': (2002, 2025)
+            'Anio': (2002, 2025)
         },
         'expected_years': range(2002, 2024)
     },
     
     'INE_Poblacion_Edad_Sexo_Nacionalidad': {
-        'primary_key': ['Año', 'Edad', 'Sexo'],
-        'critical_columns': ['Año', 'Edad', 'Sexo', 'Poblacion'],
+        'primary_key': ['Anio', 'Edad', 'Sexo'],
+        'critical_columns': ['Anio', 'Edad', 'Sexo', 'Poblacion'],
         'range_checks': {
             'Poblacion': (0, 50000000),
-            'Año': (2002, 2025)
+            'Anio': (2002, 2025)
         },
         'expected_years': range(2002, 2024)
     },
     
     'INE_Umbral_Pobreza_Hogar': {
-        'primary_key': ['Año', 'Tipo_Hogar', 'Grupo_Edad', 'Sexo'],  # Incluir todas las dimensiones
-        'critical_columns': ['Año', 'Tipo_Hogar', 'Grupo_Edad', 'Sexo', 'Poblacion'],
-        'expected_columns': ['Año', 'Tipo_Hogar', 'Grupo_Edad', 'Sexo', 'Poblacion'],
+        'primary_key': ['Anio', 'Tipo_Hogar', 'Grupo_Edad', 'Sexo'],  # Incluir todas las dimensiones
+        'critical_columns': ['Anio', 'Tipo_Hogar', 'Grupo_Edad', 'Sexo', 'Poblacion'],
+        'expected_columns': ['Anio', 'Tipo_Hogar', 'Grupo_Edad', 'Sexo', 'Poblacion'],
         'range_checks': {
             'Poblacion': (0, 50000000),
-            'Año': (2002, 2025)
+            'Anio': (2002, 2025)
         },
         'expected_years': range(2013, 2024)
     },
     
     'INE_Renta_Media_Decil': {
-        'primary_key': ['Año', 'Decil'],
-        'critical_columns': ['Año', 'Decil', 'Renta_Media'],
+        'primary_key': ['Anio', 'Decil'],
+        'critical_columns': ['Anio', 'Decil', 'Renta_Media'],
         'range_checks': {
             'Renta_Media': (0, 200000),  # Euros anuales
-            'Año': (2007, 2025)
+            'Anio': (2007, 2025)
         },
         'expected_years': range(2008, 2023)
     },
     
     'INE_Umbral_Pobreza_Hogar': {
-        'primary_key': ['Año', 'Tipo_Hogar'],
-        'critical_columns': ['Año', 'Tipo_Hogar', 'Umbral'],
+        'primary_key': ['Anio', 'Tipo_Hogar'],
+        'critical_columns': ['Anio', 'Tipo_Hogar', 'Umbral'],
         'range_checks': {
             'Umbral': (0, 50000),  # Euros anuales
-            'Año': (2007, 2025)
+            'Anio': (2007, 2025)
         },
         'expected_years': range(2008, 2023)
     },
     
     'INE_Carencia_Material_Decil': {
-        'primary_key': ['Año', 'Decil', 'Item'],
-        'critical_columns': ['Año', 'Decil', 'Item', 'Porcentaje'],
+        'primary_key': ['Anio', 'Decil', 'Item'],
+        'critical_columns': ['Anio', 'Decil', 'Item', 'Porcentaje'],
         'range_checks': {
             'Porcentaje': (0, 100),
-            'Año': (2007, 2025)
+            'Anio': (2007, 2025)
         },
         'expected_years': range(2013, 2023)
     },
     
     'INE_Gasto_Medio_Hogar_Quintil': {
-        'primary_key': ['Año', 'Quintil', 'Grupo_Gasto', 'Tipo_Valor'],
-        'critical_columns': ['Año', 'Quintil', 'Grupo_Gasto', 'Tipo_Valor', 'Valor'],
+        'primary_key': ['Anio', 'Quintil', 'Grupo_Gasto', 'Tipo_Valor'],
+        'critical_columns': ['Anio', 'Quintil', 'Grupo_Gasto', 'Tipo_Valor', 'Valor'],
         'range_checks': {
             'Valor': (0, 100000),  # Euros anuales
-            'Año': (2006, 2025)
+            'Anio': (2006, 2025)
         },
         'expected_years': range(2006, 2024)
     },
     
     'INE_IPC_Sectorial_ECOICOP': {
-        'primary_key': ['Año', 'Categoria_ECOICOP'],
-        'critical_columns': ['Año', 'Categoria_ECOICOP', 'IPC'],
+        'primary_key': ['Anio', 'Categoria_ECOICOP', 'Tipo_Metrica'],
+        'critical_columns': ['Anio', 'Categoria_ECOICOP', 'Tipo_Metrica', 'IPC'],
         'range_checks': {
             'IPC': (50, 200),  # Base 100
-            'Año': (2002, 2025)
+            'Anio': (2002, 2025)
         },
         'expected_years': range(2002, 2024)
+        ,
+        # Regla: Inflacion_Sectorial_% debe ser NULL solo cuando Tipo_Metrica==Índice
+        'conditional_nulls': {
+            'Inflacion_Sectorial_%': {
+                'cond_column': 'Tipo_Metrica',
+                'cond_null_substrings': ['ndice']  # matches 'Índice', '�ndice', 'Indice'
+            }
+        }
     }
 }
 
 # Reglas de validación para tablas EUROSTAT
 EUROSTAT_VALIDATION_RULES = {
     'EUROSTAT_Gini_UE27': {
-        'primary_key': ['Año', 'geo_name'],
-        'critical_columns': ['Año', 'geo_name', 'Gini'],
-        'expected_columns': ['Año', 'geo_name', 'Gini'],
+        'primary_key': ['Anio', 'geo_name'],
+        'critical_columns': ['Anio', 'geo_name', 'Gini'],
+        'expected_columns': ['Anio', 'geo_name', 'Gini'],
         'expected_types': {
-            'Año': int,
+            'Anio': int,
             'geo_name': str,
             'Gini': float
         },
         'range_checks': {
-            'Gini': (0, 100),  # Gini * 100
-            'Año': (2015, 2025)
+              'Gini': (0, 1.0),  # Gini en escala 0-1
+            'Anio': (2015, 2025)
         },
         'expected_years': range(2015, 2024)
     },
     
     'EUROSTAT_Gini_Espana': {
-        'primary_key': ['Año'],
-        'critical_columns': ['Año', 'Gini'],
-        'expected_columns': ['Año', 'Gini'],
+        'primary_key': ['Anio'],
+        'critical_columns': ['Anio', 'Gini'],
+        'expected_columns': ['Anio', 'Gini'],
         'expected_types': {
-            'Año': int,
+            'Anio': int,
             'Gini': float
         },
         'range_checks': {
-            'Gini': (0, 100),
-            'Año': (2015, 2025)
+              'Gini': (0, 1.0),
+            'Anio': (2015, 2025)
         },
         'expected_years': range(2015, 2024)
     },
     
     'EUROSTAT_Gini_Ranking': {
-        'primary_key': ['Año', 'geo_name'],
-        'critical_columns': ['Año', 'geo_name', 'Gini'],
-        'expected_columns': ['Año', 'geo_name', 'Gini', 'geo_code'],
+        'primary_key': ['Anio', 'geo_name'],
+        'critical_columns': ['Anio', 'geo_name', 'Gini'],
+        'expected_columns': ['Anio', 'geo_name', 'Gini', 'geo_code'],
         'range_checks': {
-            'Gini': (0, 100),
-            'Año': (2015, 2025)
+              'Gini': (0, 1.0),
+            'Anio': (2015, 2025)
         },
         'expected_years': range(2015, 2024)
     },
     
     'EUROSTAT_AROP_Ranking': {
-        'primary_key': ['Año', 'geo_name'],
-        'critical_columns': ['Año', 'geo_name', 'AROP_%'],
-        'expected_columns': ['Año', 'geo_name', 'AROP_%', 'geo_code'],
+        'primary_key': ['Anio', 'geo_name'],
+        'critical_columns': ['Anio', 'geo_name', 'AROP_%'],
+        'expected_columns': ['Anio', 'geo_name', 'AROP_%', 'geo_code'],
         'range_checks': {
             'AROP_%': (0, 100),
-            'Año': (2015, 2025)
+            'Anio': (2015, 2025)
         },
         'expected_years': range(2015, 2024)
     },
     
     'EUROSTAT_AROP_UE27': {
-        'primary_key': ['Año', 'geo_name'],
-        'critical_columns': ['Año', 'geo_name', 'AROP_%'],
-        'expected_columns': ['Año', 'geo_name', 'AROP_%'],
+        'primary_key': ['Anio', 'geo_name'],
+        'critical_columns': ['Anio', 'geo_name', 'AROP_%'],
+        'expected_columns': ['Anio', 'geo_name', 'AROP_%'],
         'expected_types': {
-            'Año': int,
+            'Anio': int,
             'geo_name': str,
             'AROP_%': float
         },
         'range_checks': {
             'AROP_%': (0, 100),
-            'Año': (2015, 2025)
+            'Anio': (2015, 2025)
         },
         'expected_years': range(2015, 2024)
     },
     
     'EUROSTAT_AROP_Espana': {
-        'primary_key': ['Año'],
-        'critical_columns': ['Año', 'AROP'],
+        'primary_key': ['Anio'],
+        'critical_columns': ['Anio', 'AROP'],
         'range_checks': {
             'AROP': (0, 100),
-            'Año': (2015, 2025)
+            'Anio': (2015, 2025)
         },
         'expected_years': range(2015, 2024)
     },
     
     'EUROSTAT_S80S20_UE27': {
-        'primary_key': ['Año', 'geo_name'],
-        'critical_columns': ['Año', 'geo_name', 'S80S20'],
+        'primary_key': ['Anio', 'geo_name'],
+        'critical_columns': ['Anio', 'geo_name', 'S80S20'],
         'range_checks': {
             'S80S20': (0, 20),  # Ratio razonable
-            'Año': (2015, 2025)
+            'Anio': (2015, 2025)
         },
         'expected_years': range(2015, 2024)
     },
     
     'EUROSTAT_S80S20_Espana': {
-        'primary_key': ['Año'],
-        'critical_columns': ['Año', 'S80S20'],
+        'primary_key': ['Anio'],
+        'critical_columns': ['Anio', 'S80S20'],
         'range_checks': {
             'S80S20': (0, 20),
             'Año': (2015, 2025)

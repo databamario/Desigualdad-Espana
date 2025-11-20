@@ -30,9 +30,9 @@ def cleanup_validated_tables():
     try:
         conn = pyodbc.connect(DB_CONNECTION_STRING)
         cursor = conn.cursor()
-        print("✅ Conectado a SQL Server\n")
+        print("[OK] Conectado a SQL Server\n")
     except Exception as e:
-        print(f"❌ Error al conectar a SQL Server: {e}")
+        print(f"[ERR] Error al conectar a SQL Server: {e}")
         return False
     
     # Listar tablas VALIDATED_* existentes
@@ -47,20 +47,20 @@ def cleanup_validated_tables():
     tables = [row[0] for row in cursor.fetchall()]
     
     if not tables:
-        print("ℹ️  No se encontraron tablas VALIDATED_* para eliminar")
+        print("[INFO] No se encontraron tablas VALIDATED_* para eliminar")
         conn.close()
         return True
     
-    print(f"📋 Tablas VALIDATED_* encontradas: {len(tables)}\n")
+    print(f"[LIST] Tablas VALIDATED_* encontradas: {len(tables)}\n")
     for i, table in enumerate(tables, 1):
         print(f"   {i}. {table}")
     
     # Confirmar eliminación
     print("\n" + "="*80)
-    response = input("⚠️  ¿Confirmas que quieres eliminar estas tablas? (SI/NO): ")
+    response = input("[WARN] ¿Confirmas que quieres eliminar estas tablas? (SI/NO): ")
     
     if response.upper() != 'SI':
-        print("❌ Operación cancelada por el usuario")
+        print("[ERR] Operación cancelada por el usuario")
         conn.close()
         return False
     
@@ -76,21 +76,21 @@ def cleanup_validated_tables():
         try:
             cursor.execute(f"DROP TABLE [{table}]")
             conn.commit()
-            print(f"✅ Eliminada: {table}")
+            print(f"[OK] Eliminada: {table}")
             deleted_count += 1
         except Exception as e:
-            print(f"❌ Error al eliminar {table}: {e}")
+            print(f"[ERR] Error al eliminar {table}: {e}")
             errors.append((table, str(e)))
     
     # Resumen
     print("\n" + "="*80)
     print("RESUMEN DE LIMPIEZA")
     print("="*80)
-    print(f"✅ Tablas eliminadas: {deleted_count}")
-    print(f"❌ Errores: {len(errors)}")
+    print(f"[OK] Tablas eliminadas: {deleted_count}")
+    print(f"[ERR] Errores: {len(errors)}")
     
     if errors:
-        print("\n⚠️  Errores encontrados:")
+        print("\n[WARN] Errores encontrados:")
         for table, error in errors:
             print(f"   - {table}: {error}")
     
@@ -105,9 +105,9 @@ def cleanup_validated_tables():
     remaining = cursor.fetchone()[0]
     
     if remaining == 0:
-        print("\n🎉 Limpieza completada exitosamente. No quedan tablas VALIDATED_*")
+        print("\n[OK] Limpieza completada exitosamente. No quedan tablas VALIDATED_*")
     else:
-        print(f"\n⚠️  Quedan {remaining} tablas VALIDATED_* sin eliminar")
+        print(f"\n[WARN] Quedan {remaining} tablas VALIDATED_* sin eliminar")
     
     conn.close()
     return True

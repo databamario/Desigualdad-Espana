@@ -130,10 +130,10 @@ def run_notebook(notebook_path: str) -> bool:
         return True
         
     except subprocess.CalledProcessError as e:
-        print(f"\n❌ Error ejecutando {notebook_path}: {e.stderr}")
+        print(f"\n[ERR] Error ejecutando {notebook_path}: {e.stderr}")
         return False
     except FileNotFoundError:
-        print(f"\n❌ Error: jupyter nbconvert no encontrado. Instalar con: pip install nbconvert")
+        print(f"\n[ERR] Error: jupyter nbconvert no encontrado. Instalar con: pip install nbconvert")
         return False
 
 
@@ -143,7 +143,7 @@ def main():
     print("="*80)
     print("VALIDACIÓN DE DATOS - DESIGUALDAD SOCIAL")
     print("="*80)
-    print(f"⏰ Inicio: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+    print(f"Inicio: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
     
     # Definir notebooks a ejecutar (en orden)
     notebooks = [
@@ -164,7 +164,7 @@ def main():
             missing_notebooks.append(str(notebook_path))
     
     if missing_notebooks:
-        print("❌ Error: No se encontraron los siguientes notebooks:")
+        print("[ERR] Error: No se encontraron los siguientes notebooks:")
         for nb in missing_notebooks:
             print(f"   - {nb}")
         return False
@@ -180,13 +180,13 @@ def main():
         results[notebook] = success
         
         if success:
-            print("✅")
+            print("[OK]")
         else:
-            print("❌")
-            print(f"\n⚠️  Error en {notebook}. ¿Continuar? (SI/NO): ", end='')
+            print("[ERR]")
+            print(f"\n[WARN]  Error en {notebook}. ¿Continuar? (SI/NO): ", end='')
             response = input().strip().upper()
             if response != 'SI':
-                print("\n❌ Validación interrumpida por el usuario")
+                print("\n[ERR] Validación interrumpida por el usuario")
                 break
     
     # Resumen final
@@ -198,52 +198,52 @@ def main():
     validation_summary = analyze_validation_logs()
     
     if validation_summary['no_logs']:
-        print("\n⚠️  No se encontraron logs de validación")
+        print("\n[WARN]  No se encontraron logs de validación")
         print("   Los reportes deberían estar en: ../data/validated/logs/")
     else:
         failed_tables = validation_summary['failed']
         passed_tables = validation_summary['passed']
         
-        print(f"\n📊 Total de tablas validadas: {len(failed_tables) + len(passed_tables)}")
-        print(f"   ✅ Correctas (PASSED): {len(passed_tables)}")
-        print(f"   ❌ Con errores (FAILED): {len(failed_tables)}")
+        print(f"\nTotal de tablas validadas: {len(failed_tables) + len(passed_tables)}")
+        print(f"   Correctas (PASSED): {len(passed_tables)}")
+        print(f"   Con errores (FAILED): {len(failed_tables)}")
         
         # Mostrar tablas con errores
         if failed_tables:
             print("\n" + "="*80)
-            print("❌ TABLAS CON ERRORES CRÍTICOS")
+            print("TABLAS CON ERRORES CRÍTICOS")
             print("="*80)
             for item in failed_tables:
-                print(f"\n� {item['table']} ({item['error_count']} errores)")
+                print(f"\n[TABLE] {item['table']} ({item['error_count']} errores)")
                 for error in item['errors']:
                     print(f"   - {error}")
         
         # Mostrar tablas correctas (solo nombres)
         if passed_tables:
             print("\n" + "="*80)
-            print("✅ TABLAS VALIDADAS CORRECTAMENTE")
+            print("TABLAS VALIDADAS CORRECTAMENTE")
             print("="*80)
             for item in passed_tables:
                 warnings_info = f" ({item['warning_count']} advertencias)" if item['warning_count'] > 0 else ""
-                print(f"   ✅ {item['table']}{warnings_info}")
+                print(f"   {item['table']}{warnings_info}")
     
-    print(f"\n⏰ Fin: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"\nFin: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     
     # Determinar éxito basado en logs de validación
     has_failed_tables = len(validation_summary.get('failed', [])) > 0
     
     if not has_failed_tables and not validation_summary['no_logs']:
-        print("\n🎉 ¡VALIDACIÓN COMPLETA EXITOSA! Todas las tablas están correctas.")
+        print("\nVALIDACIÓN COMPLETA EXITOSA! Todas las tablas están correctas.")
         return True
     elif has_failed_tables:
-        print(f"\n⚠️  VALIDACIÓN COMPLETADA CON ERRORES: {len(validation_summary['failed'])} tabla(s) requieren atención.")
+        print(f"\n[WARN] VALIDACIÓN COMPLETADA CON ERRORES: {len(validation_summary['failed'])} tabla(s) requieren atención.")
         print("\n🎯 Acción requerida:")
         print("   1. Revisar errores listados arriba")
         print("   2. Corregir datos en origen o ajustar reglas de validación")
         print("   3. Volver a ejecutar validación")
         return False
     else:
-        print("\n⚠️  No se pudieron analizar los logs de validación")
+        print("\n[WARN]  No se pudieron analizar los logs de validación")
         return True
 
 

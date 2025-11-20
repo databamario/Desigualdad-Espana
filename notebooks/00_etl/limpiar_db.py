@@ -21,24 +21,24 @@ cursor.execute("""
 """)
 tablas = [r[0] for r in cursor.fetchall()]
 
-print(f"📋 Tablas a eliminar: {len(tablas)}")
+print(f"[LIST] Tablas a eliminar: {len(tablas)}")
 for t in tablas:
     print(f"  - {t}")
 
-confirmacion = input("\n⚠️  ¿Confirmar eliminación de TODAS las tablas? (escribir SI): ")
+confirmacion = input("\n[WARN]  ¿Confirmar eliminación de TODAS las tablas? (escribir SI): ")
 
 if confirmacion.strip().upper() == "SI":
-    print("\n🗑️  Eliminando tablas...")
+    print("\n[INFO]  Eliminando tablas...")
     for tabla in tablas:
         try:
             cursor.execute(f"DROP TABLE {tabla}")
-            print(f"  ✅ {tabla}")
+            print(f"  [OK] {tabla}")
         except Exception as e:
-            print(f"  ❌ {tabla}: {e}")
+            print(f"  [ERR] {tabla}: {e}")
     
     conn.commit()
-    print("\n✅ Base de datos limpiada")
+    print("\n[OK] Base de datos limpiada")
 else:
-    print("\n❌ Operación cancelada")
+    print("\n[ERR] Operación cancelada")
 
 conn.close()

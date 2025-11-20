@@ -1,0 +1,104 @@
+# Esquema de Datos - df_limpio.parquet
+# Archivo generado por: notebooks/00_etl/01_run_etl.py
+# Última actualización: 2025-11-18
+
+df_limpio:
+  descripcion: "DataFrame limpio con todos los indicadores de desigualdad (2008-2023)"
+  formato: "parquet"
+  ubicacion: "data/processed/df_limpio.parquet"
+  
+  columnas:
+    - nombre: "Año"
+      tipo: "int64"
+      descripcion: "Año de observación (2008-2023)"
+      ejemplo: 2023
+      nullable: false
+      
+    - nombre: "Gini"
+      tipo: "float64"
+      descripcion: "Coeficiente de Gini (0-100 escala)"
+      rango: [0.0, 100.0]
+      ejemplo: 33.2
+      nullable: true
+      
+    - nombre: "S80S20"
+      tipo: "float64"
+      descripcion: "Ratio S80/S20 - Renta del 20% más rico / 20% más pobre"
+      rango: [1.0, 20.0]
+      ejemplo: 5.8
+      nullable: true
+      
+    - nombre: "AROPE_%"
+      tipo: "float64"
+      descripcion: "Tasa AROPE (At Risk Of Poverty or social Exclusion)"
+      rango: [0.0, 100.0]
+      ejemplo: 26.5
+      nullable: true
+      
+    - nombre: "Umbral_Euros"
+      tipo: "float64"
+      descripcion: "Umbral de pobreza en euros nominales"
+      rango: [0.0, 50000.0]
+      ejemplo: 10990.0
+      nullable: true
+      
+    - nombre: "Umbral_Real_€_Base"
+      tipo: "float64"
+      descripcion: "Umbral de pobreza ajustado por inflación (base 2008)"
+      rango: [0.0, 50000.0]
+      ejemplo: 9500.0
+      nullable: true
+      
+    - nombre: "Inflacion_Anual_%"
+      tipo: "float64"
+      descripcion: "Tasa de inflación anual (IPC general)"
+      rango: [-5.0, 20.0]
+      ejemplo: 3.5
+      nullable: false
+      
+    - nombre: "Renta_D1_Real"
+      tipo: "float64"
+      descripcion: "Renta media del decil 1 (10% más pobre) ajustada por inflación"
+      rango: [0.0, 20000.0]
+      ejemplo: 4500.0
+      nullable: true
+      
+    - nombre: "Renta_D10_Real"
+      tipo: "float64"
+      descripcion: "Renta media del decil 10 (10% más rico) ajustada por inflación"
+      rango: [0.0, 100000.0]
+      ejemplo: 45000.0
+      nullable: true
+      
+    - nombre: "Carencia_Material_D1"
+      tipo: "float64"
+      descripcion: "% hogares del decil 1 con carencia material severa"
+      rango: [0.0, 100.0]
+      ejemplo: 35.4
+      nullable: true
+      
+    - nombre: "Carencia_Material_D10"
+      tipo: "float64"
+      descripcion: "% hogares del decil 10 con carencia material severa"
+      rango: [0.0, 100.0]
+      ejemplo: 4.3
+      nullable: true
+
+  validaciones_requeridas:
+    - "No debe haber duplicados en Año"
+    - "Todos los años entre 2008-2023 deben estar presentes"
+    - "Gini y S80S20 deben correlacionar positivamente (r > 0.7)"
+    - "Umbral_Real_€_Base debe ser consistente con Inflacion_Anual_%"
+    - "Renta_D10_Real debe ser siempre mayor que Renta_D1_Real"
+    
+  dependencias:
+    generado_por:
+      - "INE_IPC_Nacional"
+      - "INE_Gini_S80S20_CCAA"
+      - "INE_AROPE_Edad_Sexo"
+      - "INE_Umbral_Pobreza_Hogar"
+      - "INE_Renta_Media_Decil"
+      - "INE_Carencia_Material_Decil"
+    
+  version_esquema: "1.0"
+  compatibilidad: "pandas >= 2.0, pyarrow >= 10.0"

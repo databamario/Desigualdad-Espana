@@ -3,6 +3,8 @@ __pycache__/
 *.pyc
 *.pyo
 
+# Scripts archivados
+scripts/archive/
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints/
 
@@ -35,3 +37,16 @@ config.yaml
 notebooks/06_sintesis/
 notebooks/02_analisis_regional/
 notebooks/03_comparativa_europa/
+
+# Ignore coverage data produced locally
+.coverage
+.coverage.*
+# Pytest cache and temp
+.pytest_cache/
+# Test output and debug artifacts
+test_output.txt
+debug_*.txt
+DEBUG_*.txt
+# Temporary notebooks created while debugging
+tmp_*.ipynb
+tmp/

@@ -27,13 +27,13 @@ class ValidationReport:
         self.records_excluded = 0
         
     def add_error(self, message: str):
-        self.errors.append(f"❌ {message}")
+        self.errors.append(f"[ERR] {message}")
         
     def add_warning(self, message: str):
-        self.warnings.append(f"⚠️ {message}")
+        self.warnings.append(f"[WARN] {message}")
         
     def add_info(self, message: str):
-        self.info.append(f"✅ {message}")
+        self.info.append(f"[INFO] {message}")
     
     def has_errors(self) -> bool:
         return len(self.errors) > 0
@@ -44,21 +44,21 @@ class ValidationReport:
         print("="*80)
         
         if self.info:
-            print("\n📊 INFORMACIÓN:")
+            print("\n[INFO] INFORMACIÓN:")
             for msg in self.info:
                 print(f"  {msg}")
         
         if self.warnings:
-            print("\n⚠️ ADVERTENCIAS:")
+            print("\n[WARN] ADVERTENCIAS:")
             for msg in self.warnings:
                 print(f"  {msg}")
         
         if self.errors:
-            print("\n❌ ERRORES CRÍTICOS:")
+            print("\n[ERR] ERRORES CRÍTICOS:")
             for msg in self.errors:
                 print(f"  {msg}")
         else:
-            print("\n✅ Sin errores críticos")
+            print("\n[OK] Sin errores críticos")
         
         print("="*80)
     
@@ -70,9 +70,9 @@ class ValidationReport:
             'records_original': self.records_original,
             'records_excluded': self.records_excluded,
             'records_clean': self.records_original - self.records_excluded,
-            'errors': [msg.replace('❌ ', '') for msg in self.errors],
-            'warnings': [msg.replace('⚠️ ', '').replace('⚠️  ', '') for msg in self.warnings],
-            'info': [msg.replace('✅ ', '') for msg in self.info],
+            'errors': [msg.replace('[ERR] ', '') for msg in self.errors],
+            'warnings': [msg.replace('[WARN] ', '').replace('[WARN]  ', '') for msg in self.warnings],
+            'info': [msg.replace('[INFO] ', '') for msg in self.info],
             'error_count': len(self.errors),
             'warning_count': len(self.warnings),
             'status': 'FAILED' if self.has_errors() else 'PASSED'
@@ -95,7 +95,7 @@ class ValidationReport:
         with open(filename, 'w', encoding='utf-8') as f:
             json.dump(self.to_dict(), f, indent=2, ensure_ascii=False)
         
-        print(f"📄 Reporte guardado: {filename}")
+        print(f"[REPORT] Report saved: {filename}")
         return str(filename)
     
     def save_csv(self, output_dir: str = '../../data/validated/logs'):
@@ -115,11 +115,11 @@ class ValidationReport:
         # Crear DataFrame con los resultados
         records = []
         for msg in self.errors:
-            records.append({'type': 'ERROR', 'message': msg.replace('❌ ', '')})
+            records.append({'type': 'ERROR', 'message': msg.replace('[ERR] ', '').replace('❌ ', '')})
         for msg in self.warnings:
-            records.append({'type': 'WARNING', 'message': msg.replace('⚠️ ', '').replace('⚠️  ', '')})
+            records.append({'type': 'WARNING', 'message': msg.replace('[WARN] ', '').replace('⚠️ ', '').replace('⚠️  ', '')})
         for msg in self.info:
-            records.append({'type': 'INFO', 'message': msg.replace('✅ ', '')})
+            records.append({'type': 'INFO', 'message': msg.replace('[INFO] ', '').replace('✅ ', '').replace('ℹ️ ', '')})
         
         df = pd.DataFrame(records)
         df['table_name'] = self.table_name
@@ -127,7 +127,7 @@ class ValidationReport:
         
         df.to_csv(filename, index=False, encoding='utf-8')
         
-        print(f"📄 Reporte guardado: {filename}")
+        print(f"[REPORT] Report saved: {filename}")
         return str(filename)
 
 
@@ -149,6 +149,13 @@ def check_schema(df: pd.DataFrame,
     """
     valid = True
     
+    # Normalize year column names: accept 'Anio' or fallback to 'Año'/'Anyo'
+    if 'Anio' not in df.columns and 'Año' in df.columns:
+        df = df.copy()
+        df['Anio'] = df['Año']
+    if 'Anio' not in df.columns and 'Anyo' in df.columns:
+        df = df.copy()
+        df['Anio'] = df['Anyo']
     # Verificar columnas
     missing_cols = set(expected_columns) - set(df.columns)
     extra_cols = set(df.columns) - set(expected_columns)
@@ -158,7 +165,7 @@ def check_schema(df: pd.DataFrame,
         if report:
             report.add_error(msg)
         else:
-            print(f"❌ {msg}")
+            print(f"[ERR] {msg}")
         valid = False
     
     if extra_cols:
@@ -166,7 +173,7 @@ def check_schema(df: pd.DataFrame,
         if report:
             report.add_warning(msg)
         else:
-            print(f"⚠️ {msg}")
+            print(f"[WARN] {msg}")
     
     # Verificar tipos
     if expected_types and valid:
@@ -179,21 +186,21 @@ def check_schema(df: pd.DataFrame,
                     if report:
                         report.add_error(msg)
                     else:
-                        print(f"❌ {msg}")
+                        print(f"[ERR] {msg}")
                     valid = False
                 elif expected_type == float and not pd.api.types.is_float_dtype(actual_type):
                     msg = f"Columna '{col}': tipo {actual_type}, esperado float"
                     if report:
                         report.add_error(msg)
                     else:
-                        print(f"❌ {msg}")
+                        print(f"[ERR] {msg}")
                     valid = False
                 elif expected_type == str and not pd.api.types.is_string_dtype(actual_type) and not pd.api.types.is_object_dtype(actual_type):
                     msg = f"Columna '{col}': tipo {actual_type}, esperado string"
                     if report:
                         report.add_error(msg)
                     else:
-                        print(f"❌ {msg}")
+                        print(f"[ERR] {msg}")
                     valid = False
     
     if valid and report:
@@ -216,6 +223,13 @@ def check_uniqueness(df: pd.DataFrame,
     Returns:
         True si no hay duplicados, False si hay duplicados
     """
+    # Normalize year column names
+    if 'Anio' not in df.columns and 'Año' in df.columns:
+        df = df.copy()
+        df['Anio'] = df['Año']
+    if 'Anio' not in df.columns and 'Anyo' in df.columns:
+        df = df.copy()
+        df['Anio'] = df['Anyo']
     duplicates = df.duplicated(subset=primary_key, keep=False).sum()
     
     if duplicates > 0:
@@ -223,7 +237,7 @@ def check_uniqueness(df: pd.DataFrame,
         if report:
             report.add_error(msg)
         else:
-            print(f"❌ {msg}")
+            print(f"[ERR] {msg}")
         return False
     
     if report:
@@ -260,7 +274,7 @@ def check_nulls(df: pd.DataFrame,
                     if report:
                         report.add_error(msg)
                     else:
-                        print(f"❌ {msg}")
+                        print(f"[ERR] {msg}")
                     valid = False
     
     # Verificar todas las columnas contra umbral
@@ -273,13 +287,172 @@ def check_nulls(df: pd.DataFrame,
                 if report:
                     report.add_warning(msg)
                 else:
-                    print(f"⚠️ {msg}")
+                    print(f"[WARN] {msg}")
     
     if valid and report:
         total_nulls = df.isnull().sum().sum()
         report.add_info(f"Valores faltantes: {total_nulls} nulos totales dentro de umbrales")
     
     return valid
+
+
+def check_conditional_nulls(df: pd.DataFrame,
+                            conditional_rules: Dict[str, dict],
+                            report: Optional[ValidationReport] = None) -> bool:
+    """
+    Valida reglas de nulos condicionados: por ejemplo, una columna puede ser NULL solo
+    cuando otra columna tiene ciertos valores (ej. 'Inflacion_Sectorial_%' NULL solo
+    cuando 'Tipo_Metrica' == 'Índice').
+
+    Args:
+        df: DataFrame a validar
+        conditional_rules: Diccionario donde la clave es el nombre de la columna
+                           a validar y el valor es un dict con parámetros:
+                           {
+                               'cond_column': str,
+                               'cond_null_substrings': List[str]
+                           }
+        report: ValidationReport
+
+    Returns:
+        True si todas las reglas se cumplen, False en caso contrario
+    """
+    valid = True
+
+    for col, rule in conditional_rules.items():
+        cond_col = rule.get('cond_column')
+        substrings = rule.get('cond_null_substrings', [])
+
+        if col not in df.columns:
+            msg = f"Columna condicional '{col}' no encontrada en DataFrame"
+            if report:
+                report.add_warning(msg)
+            else:
+                print(f"[WARN] {msg}")
+            # skip this rule
+            continue
+
+        if cond_col not in df.columns:
+            msg = f"Columna condicional de referencia '{cond_col}' no encontrada en DataFrame"
+            if report:
+                report.add_warning(msg)
+            else:
+                print(f"[WARN] {msg}")
+            continue
+
+        # Generar máscara donde se espera NULL en la columna objetivo (por coincidencia de substring)
+        mask_expected_null = pd.Series(False, index=df.index)
+        for subs in substrings:
+            mask_expected_null = mask_expected_null | df[cond_col].astype(str).str.contains(subs, case=False, na=False)
+
+        # Fuera de la máscara: la columna objetivo NO debe ser NULL
+        non_null_outside_expected = df[~mask_expected_null][col].isnull().sum()
+        if non_null_outside_expected > 0:
+            msg = f"Columna '{col}' tiene {non_null_outside_expected} nulos fuera de condición (referencia {cond_col} not in {substrings})"
+            if report:
+                report.add_error(msg)
+            else:
+                print(f"[ERR] {msg}")
+            valid = False
+
+        # Dentro de la máscara: la columna objetivo debería ser NULL (si hay no-NULL puede ser anomalía)
+        non_null_inside_expected = df[mask_expected_null][col].notnull().sum()
+        if non_null_inside_expected > 0:
+            msg = f"Columna '{col}' tiene {non_null_inside_expected} valores NO-null donde se esperaba NULL (referencia {cond_col} in {substrings})"
+            if report:
+                report.add_warning(msg)
+            else:
+                print(f"[WARN] {msg}")
+            # depending on strictness we may still consider this a failure; mark as warning only
+
+    if valid and report:
+        report.add_info("Reglas condicionales de nulos verificadas correctamente")
+
+    return valid
+
+
+def _fix_mojibake(s: str) -> str:
+    """Attempt to fix common mojibake sequences from CP1252 -> UTF-8 mismatches.
+    This is a best-effort approach using common sequences such as 'Ã¡' -> 'á'.
+    """
+    if s is None:
+        return s
+    if not isinstance(s, str):
+        s = str(s)
+    replacements = {
+        'Ã¡': 'á', 'Ã©': 'é', 'Ã­': 'í', 'Ã³': 'ó', 'Ãº': 'ú',
+        'Ã±': 'ñ', 'Ã‘': 'Ñ', 'Ã€': 'À', 'Ã´': 'ô', 'Ã“': 'Ó', 'â': "'",
+        '\ufffd': '', '�': '', 'Â€': '€', 'â‚¬': '€'
+    }
+    for k, v in replacements.items():
+        if k in s:
+            s = s.replace(k, v)
+    return s
+
+
+def normalize_text(s: str) -> str:
+    """Normalize text for stable comparisons.
+
+    - Attempts to fix common mojibake sequences
+    - Strips diacritics (returns ascii/lowercased normalized string)
+    - Collapses whitespace
+    """
+    import unicodedata
+    if s is None:
+        return s
+    s = _fix_mojibake(s)
+    # Remove Unicode replacement character if still present
+    s = s.replace('\ufffd', '').replace('�', '')
+    # Remove non-letter and non-digit characters (keep spaces)
+    import unicodedata as _ud
+    s = ''.join(c for c in s if _ud.category(c)[0] in ('L', 'N') or c.isspace())
+    # Normalize NFC to composed, then remove accents
+    s_nfkd = unicodedata.normalize('NFKD', s)
+    s_ascii = ''.join([c for c in s_nfkd if not unicodedata.combining(c)])
+    s_clean = ' '.join(s_ascii.strip().split())
+    return s_clean
+
+
+def normalize_tipo_metrica(series: pd.Series) -> pd.Series:
+    """Convert a serie of Tipo_Metrica to canonical values.
+
+    Recognizes and maps a variety of variants to canonical Spanish metric names:
+        - 'Variación anual'
+        - 'Variación mensual'
+        - 'Variación en lo que va de año'
+        - 'Índice'
+    """
+    if series is None:
+        return series
+
+    canonical_map = {
+        'variacion anual': 'Variación anual',
+        'variacion mensual': 'Variación mensual',
+        'variacion en lo que va de ano': 'Variación en lo que va de año',
+        'indice': 'Índice',
+        'indice ': 'Índice'
+    }
+
+    def _map_value(v):
+        if pd.isna(v):
+            return v
+        s = normalize_text(v).lower()
+        # Accept variants like 'variación anual', 'variacin anual', 'variacion anual', etc.
+        s = s.replace('á', 'a').replace('é', 'e').replace('í','i').replace('ó','o').replace('ú','u').replace('ñ','n')
+        s = ' '.join(s.split())
+
+        # Basic substring checks
+        if 'variacion anual' in s or ('variacion' in s and 'anual' in s):
+            return 'Variación anual'
+        if 'variacion mensual' in s or ('variacion' in s and 'mensual' in s):
+            return 'Variación mensual'
+        if 'variacion en lo que va de ano' in s or 'variacion en lo que va de año' in s or 'variacion en lo que va de' in s or ('variacion' in s and 'ano' in s) or ('variacion' in s and 'va de' in s):
+            return 'Variación en lo que va de año'
+        if 'indice' in s or 'ndice' in s:
+            return 'Índice'
+        return v
+
+    return series.apply(_map_value)
 
 
 def check_range(df: pd.DataFrame,
@@ -305,7 +478,7 @@ def check_range(df: pd.DataFrame,
         if report:
             report.add_error(msg)
         else:
-            print(f"❌ {msg}")
+            print(f"[ERR] {msg}")
         return False
     
     out_of_range = df[(df[column] < min_val) | (df[column] > max_val)]
@@ -319,7 +492,7 @@ def check_range(df: pd.DataFrame,
         if report:
             report.add_error(msg)
         else:
-            print(f"❌ {msg}")
+            print(f"[ERR] {msg}")
         return False
     
     if report:
@@ -351,7 +524,7 @@ def check_time_coherence(df: pd.DataFrame,
         if report:
             report.add_error(msg)
         else:
-            print(f"❌ {msg}")
+            print(f"[ERR] {msg}")
         return False
     
     # Ordenar por año
@@ -368,7 +541,7 @@ def check_time_coherence(df: pd.DataFrame,
         if report:
             report.add_warning(msg)
         else:
-            print(f"⚠️ {msg}")
+            print(f"[WARN] {msg}")
         return False
     
     if report:
@@ -398,7 +571,7 @@ def check_year_continuity(df: pd.DataFrame,
         if report:
             report.add_error(msg)
         else:
-            print(f"❌ {msg}")
+            print(f"[ERR] {msg}")
         return False
     
     actual_years = set(df[year_column].unique())
@@ -413,7 +586,7 @@ def check_year_continuity(df: pd.DataFrame,
             if report:
                 report.add_warning(msg)
             else:
-                print(f"⚠️ {msg}")
+                print(f"[WARN] {msg}")
             return False
         
         if extra_years:
@@ -421,7 +594,7 @@ def check_year_continuity(df: pd.DataFrame,
             if report:
                 report.add_info(msg)
             else:
-                print(f"ℹ️ {msg}")
+                print(f"[INFO] {msg}")
     else:
         # Si no se especifican años esperados, verificar continuidad
         min_year = min(actual_years)
@@ -434,7 +607,7 @@ def check_year_continuity(df: pd.DataFrame,
             if report:
                 report.add_warning(msg)
             else:
-                print(f"⚠️ {msg}")
+                print(f"[WARN] {msg}")
             return False
     
     if report:

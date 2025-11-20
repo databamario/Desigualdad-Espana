@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 02:00 UTC
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Ensure canonical year columns
+        run: python scripts/ensure_anio_columns.py
+      - name: Normalize Tipo_Metrica
+        run: python scripts/normalize_tipo_metrica.py
+      - name: Run pickle checks
+        run: python scripts/check_pickles.py
+      - name: Check pickles encoding
+        run: python scripts/check_pickles_encoding.py
+      - name: Run full validation orchestrator (notebooks)
+        run: python notebooks/00_etl/02_run_validation.py
+      - name: Code quality checks (formatting & linting)
+        run: |
+          # Black (formatting) - check only
+          black --check . || true
+          # isort - check only
+          isort --check-only . || true
+          # Flake8 (lint)
+          flake8 || true
+          # MyPy (type checking) - optional (silenced, fails on strong typing issues)
+          mypy . || true
+      - name: Run tests
+        run: pytest -q
+
+  nightly_orchestrator:
+    if: github.event_name == 'schedule'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ['3.10', '3.11']
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Ensure canonical year columns
+        run: python scripts/ensure_anio_columns.py
+      - name: Normalize Tipo_Metrica (in-place with backups)
+        run: |
+          python scripts/normalize_tipo_metrica.py --in-place --backup-dir outputs/pickle_cache/backups/nightly-${{ github.run_id }}
+      - name: Check pickles encoding
+        run: python scripts/check_pickles_encoding.py
+      - name: Run full validation orchestrator (notebooks)
+        run: python notebooks/00_etl/02_run_validation.py
+      - name: Code quality checks (formatting & linting)
+        run: |
+          black --check . || true
+          isort --check-only . || true
+          flake8 || true
+          mypy . || true
+      - name: Run integration tests for analysis notebooks
+        run: pytest tests/test_analysis_notebooks.py -q -m integration
