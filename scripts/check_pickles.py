@@ -6,8 +6,6 @@ Returns exit code 0 if all ok, 1 otherwise.
 """
 import argparse
 import sys
-
-# Imports and config
 from pathlib import Path
 
 import pandas as pd
