@@ -62,6 +62,16 @@ pip install -r requirements.txt
 
 3. **Nunca subas tu archivo `.env` al repositorio** - está excluido en `.gitignore`
 
+### ODBC Driver en Windows (Chocolatey)
+
+Si trabajas en Windows y usas runners `windows-latest` en GitHub Actions, puedes instalar el ODBC Driver para SQL Server con Chocolatey:
+
+```powershell
+choco install sqlserver-odriver -y --no-progress
+```
+
+En el workflow de CI hemos añadido un paso para instalar el driver en runners Windows y verificar que `pyodbc` detecta el driver.
+
 ## 📂 Estructura del Proyecto
 
 ```
@@ -131,6 +141,17 @@ python 01_run_etl.py
 # Ejecutar pipeline de validación completo
 python 02_run_validation.py
 ```
+
+### CI / GitHub Actions
+
+Para que la ejecución automática en GitHub Actions pueda ejecutar la carga a SQL Server y las validaciones que requieren base de datos, debes configurar las credenciales como secretos en el repositorio:
+
+1. Ve a _Settings_ → _Secrets and variables_ → _Actions_ en GitHub.
+2. Crea un nuevo secret con nombre: `DB_CONNECTION_STRING` y como valor pon la cadena ODBC (ej.: `DRIVER={ODBC Driver 17 for SQL Server};SERVER=mi-servidor;DATABASE=desigualdad;UID=usuario;PWD=contraseña;`).
+
+Nota: si no defines `DB_CONNECTION_STRING` en los secrets, el pipeline **no fallará**: el paso de Carga SQL (`01c_load_to_sql`) será omitido en CI y la validación basada en BD no se ejecutará. Esto es útil para Pull Requests y pruebas sin credenciales.
+
+La pipeline sube por defecto los artefactos generados (pickles) al final del job para depuración. Estos se almacenan temporalmente por 3 días y están disponibles en la interfaz de Actions si quieres descargarlos y revisarlos.
 
 ## 📊 Tablas Generadas (30 Total)
 

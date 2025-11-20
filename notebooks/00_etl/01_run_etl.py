@@ -13,6 +13,7 @@ Uso:
 
 import subprocess
 import sys
+import os
 from pathlib import Path
 from datetime import datetime
 
@@ -80,6 +81,13 @@ def main():
         notebooks_dir / '01b_extract_transform_EUROSTAT.ipynb',
         notebooks_dir / '01c_load_to_sql.ipynb'
     ]
+
+    # Optionally skip the SQL load step in CI when DB connection string is not provided
+    # Use env var SKIP_DB_LOAD=true to skip the 01c notebook
+    skip_db_load = os.environ.get('SKIP_DB_LOAD', 'false').lower() in ('1', 'true', 'yes')
+    if skip_db_load:
+        print('[INFO] SKIP_DB_LOAD is set -> Skipping SQL load notebook (01c_load_to_sql)')
+        notebooks = [nb for nb in notebooks if nb.stem != '01c_load_to_sql']
     
     # Verificar que existen
     for nb in notebooks:

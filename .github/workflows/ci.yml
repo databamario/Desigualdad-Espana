@@ -11,16 +11,69 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      # Inject DB connection string from GitHub secrets (set in repository settings)
+      DB_CONNECTION_STRING: ${{ secrets.DB_CONNECTION_STRING }}
+      # If DB_CONNECTION_STRING is empty, SKIP_DB_LOAD becomes 'true' to avoid failing the load step
+      SKIP_DB_LOAD: ${{ secrets.DB_CONNECTION_STRING == '' }}
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
+      - name: Install system deps for pyodbc (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          # Install build deps so pyodbc can compile against unixodbc
+          sudo apt-get install -y build-essential unixodbc-dev
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+      - name: Install ODBC Driver 17 for SQL Server (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          # Install pre-reqs and Microsoft package repo
+          sudo apt-get update
+          sudo apt-get install -y curl apt-transport-https gnupg
+          curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+          curl https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
+          sudo apt-get update
+          # Install the Microsoft ODBC driver (driver package) — unixodbc-dev is already installed
+          sudo ACCEPT_EULA=Y apt-get install -y msodbcsql17
+      - name: Install ODBC Driver 17 for SQL Server (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          # Install Microsoft ODBC Driver via Chocolatey on Windows runners
+          # (choco typically preinstalled; this will install or upgrade the package)
+          choco install sqlserver-odriver -y --no-progress || choco upgrade sqlserver-odriver -y --no-progress
+      - name: Verify ODBC driver and pyodbc availability (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          echo "-- odbcinst -j (odbcinst info) --"
+          odbcinst -j || true
+          echo "-- odbcinst -q -d (drivers list) --"
+          odbcinst -q -d || true
+          echo "-- dpkg -l | grep msodbcsql --"
+          dpkg -l | grep msodbcsql || true
+          echo "-- ldconfig -p | grep msodbcsql --"
+          ldconfig -p | grep msodbcsql || true
+          echo "-- pyodbc drivers --"
+          python - <<'PY'
+          import pyodbc
+          print(pyodbc.drivers())
+          PY
+      - name: Verify ODBC driver on Windows and pyodbc availability (Windows)
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          Write-Host "-- pyodbc drivers (PowerShell) --"
+          python - <<'PY'
+          import pyodbc
+          print(pyodbc.drivers())
+          PY
       - name: Ensure canonical year columns
         run: python scripts/ensure_anio_columns.py
       - name: Normalize Tipo_Metrica
@@ -32,37 +85,100 @@ jobs:
       - name: Check pickles encoding
         run: python scripts/check_pickles_encoding.py
       - name: Run full validation orchestrator (notebooks)
+        if: ${{ secrets.DB_CONNECTION_STRING != '' }}
         run: python notebooks/00_etl/02_run_validation.py
       - name: Code quality checks (formatting & linting)
         run: |
-          # Black (formatting) - check only
-          black --check . || true
+          # Black (formatting) - fail CI if not formatted
+          black --check .
           # isort - check only
-          isort --check-only . || true
-          # Flake8 (lint)
-          flake8 || true
+          isort --check-only .
+          # Flake8 (lint) - fail CI if lint issues
+          flake8
           # MyPy (type checking) - optional (silenced, fails on strong typing issues)
           mypy . || true
       - name: Run tests
         run: pytest -q
+      - name: Upload ETL results (Temporary)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: etl-pickles
+          path: outputs/pickle_cache/
+          retention-days: 3
 
   nightly_orchestrator:
     if: github.event_name == 'schedule'
     runs-on: ${{ matrix.os }}
+    env:
+      DB_CONNECTION_STRING: ${{ secrets.DB_CONNECTION_STRING }}
+      SKIP_DB_LOAD: ${{ secrets.DB_CONNECTION_STRING == '' }}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
         python-version: ['3.10', '3.11']
+      
     steps:
+      - name: Check DB secret (strict for nightly)
+        if: ${{ secrets.DB_CONNECTION_STRING == '' }}
+        run: |
+          echo "❌ ERROR CRÍTICO: El job nocturno debe tener acceso a la base de datos."
+          echo "   La variable DB_CONNECTION_STRING está vacía. Añade el secret en: Settings → Secrets and variables → Actions"
+          exit 1
       - uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Install system deps for pyodbc (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          # Install build deps so pyodbc can compile against unixodbc
+          sudo apt-get install -y build-essential unixodbc-dev
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+      - name: Install ODBC Driver 17 for SQL Server (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl apt-transport-https gnupg
+          curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+          curl https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
+          sudo apt-get update
+          sudo ACCEPT_EULA=Y apt-get install -y msodbcsql17
+      - name: Install ODBC Driver 17 for SQL Server (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          # Install Microsoft ODBC Driver via Chocolatey on Windows runners
+          choco install sqlserver-odriver --no-progress -y
+      - name: Verify ODBC driver and pyodbc availability (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          echo "-- odbcinst -j (odbcinst info) --"
+          odbcinst -j || true
+          echo "-- odbcinst -q -d (drivers list) --"
+          odbcinst -q -d || true
+          echo "-- dpkg -l | grep msodbcsql --"
+          dpkg -l | grep msodbcsql || true
+          echo "-- ldconfig -p | grep msodbcsql --"
+          ldconfig -p | grep msodbcsql || true
+          echo "-- pyodbc drivers --"
+          python - <<'PY'
+          import pyodbc
+          print(pyodbc.drivers())
+          PY
+      - name: Verify ODBC driver on Windows and pyodbc availability (Windows)
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          Write-Host "-- pyodbc drivers (PowerShell) --"
+          python - <<'PY'
+          import pyodbc
+          print(pyodbc.drivers())
+          PY
       - name: Ensure canonical year columns
         run: python scripts/ensure_anio_columns.py
       - name: Normalize Tipo_Metrica (in-place with backups)
@@ -73,12 +189,20 @@ jobs:
       - name: Check pickles encoding
         run: python scripts/check_pickles_encoding.py
       - name: Run full validation orchestrator (notebooks)
+        if: ${{ secrets.DB_CONNECTION_STRING != '' }}
         run: python notebooks/00_etl/02_run_validation.py
       - name: Code quality checks (formatting & linting)
         run: |
-          black --check . || true
-          isort --check-only . || true
-          flake8 || true
+          black --check .
+          isort --check-only .
+          flake8
           mypy . || true
       - name: Run integration tests for analysis notebooks
         run: pytest tests/test_analysis_notebooks.py -q -m integration
+      - name: Upload ETL results (Temporary)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: etl-pickles
+          path: outputs/pickle_cache/
+          retention-days: 3
