@@ -1,0 +1,26 @@
+# Force LF line endings for Python files (required for CI/CD consistency)
+*.py text eol=lf
+*.ipynb text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.txt text eol=lf
+*.sh text eol=lf
+
+# Binary files
+*.pkl binary
+*.parquet binary
+*.db binary
+*.sqlite binary
+*.pyc binary
+*.pyo binary
+*.so binary
+*.dll binary
+*.exe binary
+*.zip binary
+*.tar.gz binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
