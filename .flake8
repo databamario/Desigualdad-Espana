@@ -1,0 +1,31 @@
+[flake8]
+# Configuración de flake8 para el proyecto
+
+# Longitud máxima de línea (relaxed desde 79 a 120)
+max-line-length = 120
+
+# Ignorar errores específicos:
+# - E501: line too long (ya manejado por max-line-length)
+# - W291: trailing whitespace (auto-formateado por black)
+# - W293: blank line contains whitespace
+# - E226: missing whitespace around arithmetic operator (estilo preferido en algunos contextos)
+# - W503: line break before binary operator (estilo moderno recomendado por PEP 8)
+ignore = E501, W291, W293, E226, W503
+
+# Excluir directorios del análisis
+exclude =
+    .git,
+    __pycache__,
+    .venv,
+    venv,
+    env,
+    desigualdad/,
+    .pytest_cache,
+    *.egg-info,
+    build,
+    dist
+
+# Excluir archivos específicos (templates y tests problemáticos)
+per-file-ignores =
+    templates/*.py:E402
+    tests/*.py:E402
