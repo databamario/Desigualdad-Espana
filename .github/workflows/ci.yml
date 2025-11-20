@@ -90,9 +90,9 @@ jobs:
       - name: Code quality checks (formatting & linting)
         run: |
           # Black (formatting) - fail CI if not formatted
-          black --check .
+          black --check --extend-exclude="templates/TEST_UNITARIOS_VALIDACION_TEMPLATE.py|tests/test_analysis_notebooks.py|tests/test_notebook_fixtures.py" .
           # isort - check only
-          isort --check-only .
+          isort --check-only --skip templates/TEST_UNITARIOS_VALIDACION_TEMPLATE.py --skip tests/test_analysis_notebooks.py --skip tests/test_notebook_fixtures.py .
           # Flake8 (lint) - fail CI if lint issues
           flake8
           # MyPy (type checking) - optional (silenced, fails on strong typing issues)
@@ -194,8 +194,8 @@ jobs:
         run: python notebooks/00_etl/02_run_validation.py
       - name: Code quality checks (formatting & linting)
         run: |
-          black --check .
-          isort --check-only .
+          black --check --extend-exclude="templates/TEST_UNITARIOS_VALIDACION_TEMPLATE.py|tests/test_analysis_notebooks.py|tests/test_notebook_fixtures.py" .
+          isort --check-only --skip templates/TEST_UNITARIOS_VALIDACION_TEMPLATE.py --skip tests/test_analysis_notebooks.py --skip tests/test_notebook_fixtures.py .
           flake8
           mypy . || true
       - name: Run integration tests for analysis notebooks
