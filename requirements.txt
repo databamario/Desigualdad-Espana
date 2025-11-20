@@ -22,6 +22,7 @@ pytest-cov>=4.0.0
 coverage>=7.11.3
 # Dev tools (linting / formatting / typechecking)
 black>=24.3.0
+black[jupyter]
 flake8>=6.1.0
 isort>=5.14.0
 mypy>=1.12.0
