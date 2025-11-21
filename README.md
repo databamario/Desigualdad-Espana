@@ -67,7 +67,7 @@ pip install -r requirements.txt
 Si trabajas en Windows y usas runners `windows-latest` en GitHub Actions, puedes instalar el ODBC Driver para SQL Server con Chocolatey:
 
 ```powershell
-choco install sqlserver-odriver -y --no-progress
+choco install microsoft-odbc-sqlserver -y --no-progress
 ```
 
 En el workflow de CI hemos añadido un paso para instalar el driver en runners Windows y verificar que `pyodbc` detecta el driver.
