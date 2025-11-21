@@ -2,6 +2,7 @@
 __pycache__/
 *.pyc
 *.pyo
+*.pkl
 
 # Scripts archivados
 scripts/archive/
@@ -11,6 +12,7 @@ scripts/archive/
 # Data and logs
 outputs/pickle_cache/
 data/validated/logs/
+DEBUG_*.txt
 
 # System files
 *.DS_Store
@@ -26,7 +28,7 @@ data/raw/
 
 # Optional: exclude secrets/configs
 .env
-*.env
+.env.example
 secrets.json
 config.yaml
 

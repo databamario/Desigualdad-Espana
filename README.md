@@ -390,3 +390,32 @@ Este proyecto es de código abierto y está disponible bajo la licencia MIT.
 **Fecha de creación:** Noviembre 2025
 
 Para preguntas, sugerencias o reportar problemas, abre un issue en GitHub.
+
+# Desigualdad Social España
+
+## Estructura profesional del proyecto
+
+- `src/` : Código fuente principal (módulos, funciones, clases)
+- `scripts/` : Scripts de automatización y utilidades
+- `notebooks/` : Notebooks de análisis y visualización
+- `tests/` : Tests unitarios y de integración
+- `docs/` : Documentación técnica y manuales
+- `outputs/` : Resultados generados (figuras, tablas, informes)
+- `data/` : Datos fuente y validados
+- `templates/` : Plantillas y ejemplos
+- `utils/` : Utilidades y configuración
+
+### Archivos clave en la raíz
+- `README.md` : Descripción y guía del proyecto
+- `requirements.txt` : Dependencias
+- `.gitignore` : Exclusión de archivos generados
+- `.gitattributes` : Configuración de finales de línea
+- `Makefile` : Automatización de tareas
+- `pytest.ini`, `.flake8` : Configuración de testing y linting
+- `DESTACADOS_TECNICOS.md` : Resumen técnico
+
+### Recomendaciones
+- Mantén solo archivos esenciales y bien documentados
+- Elimina archivos temporales y de debugging
+- Actualiza `.gitignore` para ocultar outputs, logs y entornos virtuales
+- Documenta la estructura aquí y en `docs/`
