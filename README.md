@@ -76,8 +76,10 @@ En el workflow de CI hemos añadido un paso para instalar el driver en runners W
 
 ```
 desigualdad_social_etl/
+├── src/                                 # Código fuente principal (módulos, funciones, clases)
+├── scripts/                             # Scripts de automatización y utilidades
 ├── notebooks/
-│   ├── 00_etl/                              # Pipeline ETL y validación
+│   ├── 00_etl/                          # Pipeline ETL y validación
 │   │   ├── 01a_extract_transform_INE.ipynb      # Extracción INE (13 fuentes → 16 tablas)
 │   │   ├── 01b_extract_transform_EUROSTAT.ipynb # Extracción Eurostat (API SDMX → 14 tablas)
 │   │   ├── 01c_load_to_sql.ipynb                # Carga a SQL Server (30 tablas)
@@ -86,28 +88,34 @@ desigualdad_social_etl/
 │   │   ├── 02c_validacion_integracion.ipynb     # Validación coherencia INE↔EUROSTAT
 │   │   ├── 01_run_etl.py                        # Orquestador ETL automatizado
 │   │   └── 02_run_validation.py                 # Orquestador validación automatizado
-│   ├── 01_analisis_nacional/                # [Futuros notebooks de análisis]
-│   ├── 02_analisis_regional/                # [Futuros notebooks de análisis]
-│   └── 03_comparativa_europa/               # [Futuros notebooks de análisis]
-├── docs/
+│   ├── 01_analisis_nacional/            # Notebooks de análisis nacional
+│   ├── 02_analisis_regional/            # Notebooks de análisis regional
+│   └── 03_comparativa_europa/           # Notebooks de comparativa europea
+├── tests/                               # Tests unitarios y de integración
+├── docs/                                # Documentación técnica y manuales
 │   ├── DICCIONARIO_DATOS.md             # 📚 REFERENCIA COMPLETA: 30 tablas, variables, fuentes
 │   ├── ARQUITECTURA.md                  # Diseño técnico del pipeline
 │   └── RESUMEN_TRANSFORMACION.md        # Transformaciones aplicadas
-├── utils/
-│   ├── config.py                        # Configuración global (carga .env)
-│   ├── validation_framework.py          # Framework validación automática
-│   └── validation_rules.py              # Reglas de validación por tabla
-├── data/
-│   └── validated/
-│       └── logs/                        # Logs de validación (CSV/JSON timestamped)
-├── outputs/
+├── outputs/                             # Resultados generados (figuras, tablas, informes)
 │   ├── pickle_cache/                    # Cache intermedio (excluido del repo)
 │   ├── figuras/                         # Gráficos generados
 │   └── tablas/                          # Tablas exportadas (CSV/Excel)
+├── data/                                # Datos fuente y validados
+│   └── validated/
+│       └── logs/                        # Logs de validación (CSV/JSON timestamped)
+├── templates/                           # Plantillas y ejemplos
+├── utils/                               # Utilidades y configuración
+│   ├── config.py                        # Configuración global (carga .env)
+│   ├── validation_framework.py          # Framework validación automática
+│   └── validation_rules.py              # Reglas de validación por tabla
 ├── .env.example                         # Plantilla de configuración
 ├── .env                                 # Configuración local (NO SUBIR A GIT)
 ├── .gitignore                           # Excluye .env, logs, cache
 ├── requirements.txt                     # Dependencias Python
+├── Makefile                             # Automatización de tareas
+├── pytest.ini                           # Configuración de testing
+├── .flake8                              # Configuración de linting
+├── DESTACADOS_TECNICOS.md               # Resumen técnico
 └── README.md                            # Este archivo
 ```
 
@@ -390,32 +398,3 @@ Este proyecto es de código abierto y está disponible bajo la licencia MIT.
 **Fecha de creación:** Noviembre 2025
 
 Para preguntas, sugerencias o reportar problemas, abre un issue en GitHub.
-
-# Desigualdad Social España
-
-## Estructura profesional del proyecto
-
-- `src/` : Código fuente principal (módulos, funciones, clases)
-- `scripts/` : Scripts de automatización y utilidades
-- `notebooks/` : Notebooks de análisis y visualización
-- `tests/` : Tests unitarios y de integración
-- `docs/` : Documentación técnica y manuales
-- `outputs/` : Resultados generados (figuras, tablas, informes)
-- `data/` : Datos fuente y validados
-- `templates/` : Plantillas y ejemplos
-- `utils/` : Utilidades y configuración
-
-### Archivos clave en la raíz
-- `README.md` : Descripción y guía del proyecto
-- `requirements.txt` : Dependencias
-- `.gitignore` : Exclusión de archivos generados
-- `.gitattributes` : Configuración de finales de línea
-- `Makefile` : Automatización de tareas
-- `pytest.ini`, `.flake8` : Configuración de testing y linting
-- `DESTACADOS_TECNICOS.md` : Resumen técnico
-
-### Recomendaciones
-- Mantén solo archivos esenciales y bien documentados
-- Elimina archivos temporales y de debugging
-- Actualiza `.gitignore` para ocultar outputs, logs y entornos virtuales
-- Documenta la estructura aquí y en `docs/`

@@ -1,54 +1,84 @@
 # Python cache and compiled files
 __pycache__/
-*.pyc
-*.pyo
-*.pkl
+*.py[cod]
+*$py.class
+*.so
+*.dll
+*.dylib
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environment
+venv/
+env/
+ENV/
+desigualdad/
 
 # Scripts archivados
 scripts/archive/
-# Jupyter Notebook checkpoints
+
+# Jupyter Notebook
 .ipynb_checkpoints/
+profile_default/
+ipython_config.py
 
 # Data and logs
 outputs/pickle_cache/
 data/validated/logs/
+*.log
 DEBUG_*.txt
+debug_*.txt
+tmp_debug_*.ipynb
 
 # System files
 *.DS_Store
 Thumbs.db
+ehthumbs.db
+Desktop.ini
 
-# Virtual environment
-venv/
-desigualdad/Lib/site-packages/
-desigualdad/Scripts/
-
-# Optional: exclude raw data if present
-data/raw/
-
-# Optional: exclude secrets/configs
+# Secrets and configuration
 .env
-.env.example
+.env.local
 secrets.json
 config.yaml
 
 # VSCode settings
 .vscode/
+*.code-workspace
 
-# Do not upload large or non-final notebooks for synthesis and regional/european analysis
-notebooks/06_sintesis/
-notebooks/02_analisis_regional/
-notebooks/03_comparativa_europa/
-
-# Ignore coverage data produced locally
+# Testing and coverage
 .coverage
 .coverage.*
-# Pytest cache and temp
+htmlcov/
 .pytest_cache/
-# Test output and debug artifacts
 test_output.txt
-debug_*.txt
-DEBUG_*.txt
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Ruff / Flake8
+.ruff_cache/
+
 # Temporary notebooks created while debugging
 tmp_*.ipynb
 tmp/
