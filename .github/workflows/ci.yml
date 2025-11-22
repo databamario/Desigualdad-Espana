@@ -105,7 +105,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: etl-pickles
+          name: etl-pickles-build
           path: outputs/pickle_cache/
           retention-days: 3
 # hacer un test unitario del proyecto para asegurar la calidad del código y la integridad.
@@ -208,6 +208,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: etl-pickles
+          name: etl-pickles-nightly-${{ matrix.os }}-py${{ matrix.python-version }}
           path: outputs/pickle_cache/
           retention-days: 3
