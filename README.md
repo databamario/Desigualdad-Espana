@@ -14,25 +14,32 @@
 Este proyecto no es solo un script de movimiento de datos; es una implementación de ingeniería de software aplicada a datos.
 
 ### 1. Arquitectura ETL Modular y Resiliente
+
 El sistema desacopla estrictamente las responsabilidades para garantizar mantenibilidad y testabilidad:
 
 `mermaid
-graph TD
-    subgraph Sources
-        INE[INE (JSON/CSV)]
-        EURO[Eurostat (SDMX API)]
+flowchart TD
+    %% Estilos visuales
+    classDef source fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#0d47a1;
+    classDef process fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20;
+    classDef storage fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 5 5,color:#e65100;
+    classDef fail fill:#ffebee,stroke:#c62828,stroke-width:2px,color:#b71c1c;
+
+    subgraph Sources [ Fuentes de Datos]
+        INE[("INE\n(JSON/CSV)")]:::source
+        EURO[("Eurostat\n(SDMX API)")]:::source
     end
 
-    subgraph ETL_Pipeline["ETL Pipeline (Python)"]
-        E[Extract] --> T[Transform]
-        T --> V{Validation Framework}
-        V -- "Pass" --> L[Load to SQL]
-        V -- "Fail" --> Alert[Log Error & Stop]
+    subgraph ETL_Pipeline [ ETL Pipeline (Python)]
+        E[Extract]:::process --> T[Transform]:::process
+        T --> V{Validation\nFramework}:::process
+        V -- "Pass" --> L[Load to SQL]:::process
+        V -- "Fail" --> Alert[Log Error & Stop]:::fail
     end
 
-    subgraph Storage
-        SQL[(SQL Server)]
-        Logs[Validation Logs]
+    subgraph Storage [ Persistencia]
+        SQL[(SQL Server)]:::storage
+        Logs[Validation Logs]:::storage
     end
 
     INE --> E
@@ -46,24 +53,27 @@ graph TD
 * **Load (Idempotencia):** Los procesos de carga a SQL Server están diseñados para ser re-ejecutables (idempotentes), evitando duplicidad de datos ante fallos y reintentos.
 
 ### 2. DevOps y CI/CD Avanzado (GitHub Actions)
+
 El pipeline de integración continua está diseñado para entornos híbridos y robustez empresarial:
+
 * **Matriz de Ejecución (Matrix Testing):** El pipeline aprovisiona explícitamente drivers ODBC tanto en **Ubuntu** como en **Windows Server**, garantizando que el ETL es agnóstico al sistema operativo del despliegue.
-* **Gestión de Secretos y Entornos:** Lógica condicional (if: env.SKIP_DB_LOAD != 'true') que detecta automáticamente el entorno (Prod/CI) para adaptar el flujo sin romper el pipeline.
+* **Gestión de Secretos y Entornos:** Lógica condicional (\if: env.SKIP_DB_LOAD != 'true'\) que detecta automáticamente el entorno (Prod/CI) para adaptar el flujo sin romper el pipeline.
 * **Quality Gates Estrictos:** El código no pasa a producción si no supera:
-    * Black (Formateo PEP 8)
-    * Flake8 (Linting y detección de errores)
-    * MyPy (Tipado estático)
+    * \Black\ (Formateo PEP 8)
+    * \Flake8\ (Linting y detección de errores)
+    * \MyPy\ (Tipado estático)
 
 ### 3. Seguridad y Conectividad
+
 * **ODBC Driver 18:** Migración forzada para compatibilidad con estándares de seguridad modernos (OpenSSL 3 / Ubuntu 24.04).
-* **Encriptación:** Manejo de cadenas de conexión con soporte para TrustServerCertificate y encriptación en tránsito.
+* **Encriptación:** Manejo de cadenas de conexión con soporte para \TrustServerCertificate\ y encriptación en tránsito.
 
 ---
 
 ##  Stack Tecnológico
 
 | Área | Herramientas |
-|------|--------------|
+|---|---|
 | **Lenguaje** | Python 3.11+ (Pandas, NumPy, PyODBC, Requests) |
 | **Orquestación & CI** | GitHub Actions (Workflows, Matrix Strategy) |
 | **Base de Datos** | SQL Server (Azure/Local), T-SQL |
@@ -78,24 +88,20 @@ El repositorio sigue una estructura de "Data Product" profesional, separando lóg
 
 `	ext
 desigualdad_social_etl/
-  .github/workflows/       # CI/CD Pipelines (Matrix testing, Linting)
-  src/                     # Lógica de negocio modular
-     extractors/          # Conectores a APIs (Eurostat) y ficheros (INE)
-     loaders/             # Carga idempotente a SQL Server
-     validacion.py        # Reglas de calidad de datos
-  utils/                   # Utilidades transversales
-     validation_framework.py # Motor de validación custom
-     config.py            # Gestión de configuración centralizada
-  notebooks/               # Análisis y Orquestación
-     00_etl/              # Pipelines de Ingesta y Transformación
-     01_analisis_nacional/
-     02_analisis_regional/
-     06_sintesis/         # Informes ejecutivos
-  tests/                   # Tests unitarios e integración
-  docs/                    # Documentación técnica y funcional
-  scripts/                 # Scripts de mantenimiento y limpieza
-  templates/               # Estándares y plantillas de código
-  requirements.txt         # Dependencias del proyecto
+ .github/workflows/           #  CI/CD Pipelines (Matrix testing, Linting)
+ src/                         #  Lógica de negocio modular
+    extractors/              # Conectores a APIs (Eurostat) y ficheros (INE)
+    loaders/                 # Carga idempotente a SQL Server
+    utils/                   # Utilidades transversales
+    validation_framework.py  # Motor de validación custom
+ notebooks/                   #  Análisis y Orquestación
+    00_etl/                  # Pipelines de Ingesta y Transformación
+    01_analisis_nacional/
+    06_sintesis/             # Informes ejecutivos
+ tests/                       #  Tests unitarios e integración
+ docs/                        #  Documentación técnica y funcional
+ scripts/                     #  Scripts de mantenimiento
+ requirements.txt             #  Dependencias del proyecto
 `
 
 ##  Quick Start
@@ -106,12 +112,13 @@ desigualdad_social_etl/
 # Clonar y preparar entorno
 git clone https://github.com/tu-usuario/Desigualdad-Espana.git
 python -m venv venv
-source venv/bin/activate
+source venv/bin/activate  # O venv\Scripts\activate en Windows
 pip install -r requirements.txt
 `
 
 ### 2. Variables de Entorno (.env)
-El proyecto utiliza python-dotenv para seguridad. Crea un archivo .env:
+
+El proyecto utiliza \python-dotenv\ para seguridad. Crea un archivo \.env\:
 
 `ini
 DB_CONNECTION_STRING=DRIVER={ODBC Driver 18 for SQL Server};SERVER=localhost;DATABASE=desigualdad;Trusted_Connection=yes;TrustServerCertificate=yes;
@@ -128,11 +135,13 @@ python notebooks/00_etl/02_run_validation.py
 `
 
 ##  Impacto y Resultados
+
 El pipeline procesa y consolida **30 tablas analíticas** cubriendo indicadores críticos (AROPE, Gini, IPC), garantizando una coherencia del **99.5%** entre fuentes nacionales (INE) y europeas (Eurostat).
 
-Para detalles metodológicos completos, ver [docs/DICCIONARIO_DATOS.md](docs/DICCIONARIO_DATOS.md).
+Para detalles metodológicos completos, ver [\docs/DICCIONARIO_DATOS.md\](docs/DICCIONARIO_DATOS.md).
 
 ##  Contacto
+
 Este proyecto demuestra mi capacidad para construir infraestructura de datos sólida y mantenible.
 
 **Autor:** Mario  
@@ -140,5 +149,6 @@ Este proyecto demuestra mi capacidad para construir infraestructura de datos sól
 
 ---
 
-###  Licencia
+### Licencia
+
 Este proyecto es de código abierto y está disponible bajo la licencia MIT.
