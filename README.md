@@ -1,154 +1,149 @@
-#  End-to-End Data Engineering Pipeline: Desigualdad Social en Espa�a
+#  End-to-End Data Engineering Pipeline: Desigualdad Social en España
 
 [![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)
 [![CI/CD](https://img.shields.io/badge/GitHub%20Actions-Matrix%20Testing-2ea44f)](https://github.com/features/actions)
 [![Quality Gate](https://img.shields.io/badge/Code%20Quality-Strict-red)](https://flake8.pycqa.org/en/latest/)
 [![SQL Server](https://img.shields.io/badge/DB-SQL%20Server%20ODBC%2018-lightgrey)]()
 
-> **Visi�n General:** Pipeline ETL modular de nivel productivo dise�ado para ingesta, transformaci�n y validaci�n de datos socioecon�micos (INE y EUROSTAT). El proyecto simula un entorno empresarial real priorizando la robustez, la calidad del dato y la automatizaci�n DevOps.
+> **Visión General:** Pipeline ETL modular de nivel productivo diseñado para ingesta, transformación y validación de datos socioeconómicos (INE y EUROSTAT). El proyecto simula un entorno empresarial real priorizando la robustez, la calidad del dato y la automatización DevOps.
 
 ---
 
-##  Ingenier�a y Decisiones de Arquitectura
+## 🧠 Ingeniería y Decisiones de Arquitectura
 
-Este proyecto no es solo un script de movimiento de datos; es una implementaci�n de ingenier�a de software aplicada a datos.
+Este proyecto no es solo un script de ciencia de datos; es una implementación de ingeniería de software aplicada a datos.
 
-### 1. Arquitectura ETL Modular y Resiliente
+### 1. ⚙️ Arquitectura ETL Modular y Resiliente
 
 El sistema desacopla estrictamente las responsabilidades para garantizar mantenibilidad y testabilidad:
 
-`mermaid
+```mermaid
 flowchart TD
-    %% Estilos visuales
-    classDef source fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#0d47a1;
-    classDef process fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20;
-    classDef storage fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 5 5,color:#e65100;
-    classDef fail fill:#ffebee,stroke:#c62828,stroke-width:2px,color:#b71c1c;
+    INE[INE (JSON/CSV)] --> E[Extract]
+    EURO[Eurostat (SDMX API)] --> E
+    E --> T[Transform]
+    T --> V[Validation]
+    V -->|Pass| L[Load to SQL]
+    V -->|Fail| Alert[Log Error & Stop]
+    L --> SQL[(SQL Server)]
+    V -.-> Logs[Validation Logs]
+```
 
-    subgraph Sources [ Fuentes de Datos]
-        INE[("INE\n(JSON/CSV)")]:::source
-        EURO[("Eurostat\n(SDMX API)")]:::source
-    end
-
-    subgraph ETL_Pipeline [ ETL Pipeline (Python)]
-        E[Extract]:::process --> T[Transform]:::process
-        T --> V{Validation\nFramework}:::process
-        V -- "Pass" --> L[Load to SQL]:::process
-        V -- "Fail" --> Alert[Log Error & Stop]:::fail
-    end
-
-    subgraph Storage [ Persistencia]
-        SQL[(SQL Server)]:::storage
-        Logs[Validation Logs]:::storage
-    end
-
-    INE --> E
-    EURO --> E
-    L --> SQL
-    V -.-> Logs
-`
-
-* **Extract & Transform:** Normalizaci�n de fuentes dispares (API SDMX de Eurostat + CSV/JSON de INE) en estructuras pandas optimizadas.
-* **Validation Framework:** No solo "muevo" datos; aseguro su fiabilidad. Implement� un framework personalizado que verifica integridad de esquema, reglas de negocio (ej. Gini 0-100) y continuidad temporal antes de la carga.
-* **Load (Idempotencia):** Los procesos de carga a SQL Server est�n dise�ados para ser re-ejecutables (idempotentes), evitando duplicidad de datos ante fallos y reintentos.
-
-### 2. DevOps y CI/CD Avanzado (GitHub Actions)
-
-El pipeline de integraci�n continua est� dise�ado para entornos h�bridos y robustez empresarial:
-
-* **Matriz de Ejecuci�n (Matrix Testing):** El pipeline aprovisiona expl�citamente drivers ODBC tanto en **Ubuntu** como en **Windows Server**, garantizando que el ETL es agn�stico al sistema operativo del despliegue.
-* **Gesti�n de Secretos y Entornos:** L�gica condicional (\if: env.SKIP_DB_LOAD != 'true'\) que detecta autom�ticamente el entorno (Prod/CI) para adaptar el flujo sin romper el pipeline.
-* **Quality Gates Estrictos:** El c�digo no pasa a producci�n si no supera:
-    * \Black\ (Formateo PEP 8)
-    * \Flake8\ (Linting y detecci�n de errores)
-    * \MyPy\ (Tipado est�tico)
-
-### 3. Seguridad y Conectividad
-
-* **ODBC Driver 18:** Migraci�n forzada para compatibilidad con est�ndares de seguridad modernos (OpenSSL 3 / Ubuntu 24.04).
-* **Encriptaci�n:** Manejo de cadenas de conexi�n con soporte para \TrustServerCertificate\ y encriptaci�n en tr�nsito.
+**Puntos clave del diseño:**
+- **Extract & Transform:** Normalización de fuentes dispares (API SDMX de Eurostat + CSV/JSON de INE) en estructuras pandas optimizadas.
+- **Validation Framework:** Verificación de integridad de esquema, reglas de negocio (ej. Gini 0–100) y continuidad temporal antes de la carga.
+- **Load (Idempotencia):** Procesos re-ejecutables evitando duplicidades ante fallos o reintentos.
 
 ---
 
-##  Stack Tecnol�gico
+### 2. 🛠 DevOps y CI/CD Avanzado (GitHub Actions)
 
-| �rea | Herramientas |
-|---|---|
+Pipeline de integración continua diseñado para entornos híbridos con robustez empresarial:
+
+- **Matrix Testing:** Drivers ODBC instalados dinámicamente en **Ubuntu** y **Windows Server**.
+- **Gestión de secretos y entornos:** Lógica condicional para adaptar la ejecución según entorno.
+- **Quality Gates obligatorios:**
+  - `Black` – Formateo PEP 8  
+  - `Flake8` – Linting  
+  - `MyPy` – Tipado estático  
+  - `Pytest` – Tests unitarios
+
+---
+
+### 3. 🔒 Seguridad y Conectividad
+
+- **ODBC Driver 18:** Compatibilidad con OpenSSL 3 (Ubuntu 24.04 / Azure).
+- **Encriptación en tránsito:** Uso de `TrustServerCertificate` y configuración segura de cadena de conexión.
+- **Gestión de secretos vía GitHub Actions + .env**
+
+---
+
+## 🧰 Stack Tecnológico
+
+| Área | Herramientas |
+|------|---------------|
 | **Lenguaje** | Python 3.11+ (Pandas, NumPy, PyODBC, Requests) |
-| **Orquestaci�n & CI** | GitHub Actions (Workflows, Matrix Strategy) |
+| **Orquestación & CI** | GitHub Actions (Matrix Strategy) |
 | **Base de Datos** | SQL Server (Azure/Local), T-SQL |
-| **Calidad & Testing** | Pytest, Flake8, Black, MyPy, Custom Validation Framework |
-| **Infraestructura** | Docker (opcional), Gesti�n de entornos virtuales |
+| **Calidad & Testing** | Pytest, Flake8, Black, MyPy, Validation Framework |
+| **Infraestructura** | Docker (opcional), entornos virtuales |
 
 ---
 
-##  Estructura del Proyecto
+## 📁 Estructura del Proyecto
 
-El repositorio sigue una estructura de "Data Product" profesional, separando l�gica, configuraci�n y orquestaci�n:
-
-`	ext
+```text
 desigualdad_social_etl/
- .github/workflows/           #  CI/CD Pipelines (Matrix testing, Linting)
- src/                         #  L�gica de negocio modular
-    extractors/              # Conectores a APIs (Eurostat) y ficheros (INE)
-    loaders/                 # Carga idempotente a SQL Server
-    utils/                   # Utilidades transversales
-    validation_framework.py  # Motor de validaci�n custom
- notebooks/                   #  An�lisis y Orquestaci�n
-    00_etl/                  # Pipelines de Ingesta y Transformaci�n
-    01_analisis_nacional/
-    06_sintesis/             # Informes ejecutivos
- tests/                       #  Tests unitarios e integraci�n
- docs/                        #  Documentaci�n t�cnica y funcional
- scripts/                     #  Scripts de mantenimiento
- requirements.txt             #  Dependencias del proyecto
-`
+├── .github/workflows/           # 🤖 CI/CD Pipelines (Matrix testing, Linting)
+├── src/                         # 🧠 Lógica de negocio modular
+│   ├── extractors/              # Conectores a APIs (Eurostat) y ficheros (INE)
+│   ├── loaders/                 # Carga idempotente a SQL Server
+│   ├── utils/                   # Utilidades transversales
+│   └── validation_framework.py  # Motor de validación custom
+├── notebooks/                   # 📓 ETL y análisis
+│   ├── 00_etl/                  # Pipelines de ingesta y transformación
+│   ├── 01_analisis_nacional/    # Ciencia de datos
+│   └── 06_sintesis/             # Informes ejecutivos
+├── tests/                       # ✅ Tests unitarios e integración
+├── docs/                        # 📚 Documentación técnica y funcional
+├── scripts/                     # 🔧 Scripts de mantenimiento
+└── requirements.txt             # 📦 Dependencias
+```
 
-##  Quick Start
+---
 
-### 1. Configuraci�n
+## ⚡ Quick Start
 
-`ash
-# Clonar y preparar entorno
+### 1. Preparación del entorno
+
+```bash
+# Clonar y activar entorno
 git clone https://github.com/tu-usuario/Desigualdad-Espana.git
+cd Desigualdad-Espana
 python -m venv venv
-source venv/bin/activate  # O venv\Scripts\activate en Windows
+source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-`
+```
 
-### 2. Variables de Entorno (.env)
+### 2. Variables de Entorno (`.env`)
 
-El proyecto utiliza \python-dotenv\ para seguridad. Crea un archivo \.env\:
+```env
+DB_CONNECTION_STRING="DRIVER={ODBC Driver 18 for SQL Server};SERVER=localhost;DATABASE=desigualdad;Trusted_Connection=yes;TrustServerCertificate=yes;"
+```
 
-`ini
-DB_CONNECTION_STRING=DRIVER={ODBC Driver 18 for SQL Server};SERVER=localhost;DATABASE=desigualdad;Trusted_Connection=yes;TrustServerCertificate=yes;
-`
+> **Nota:** las comillas dobles alrededor de la cadena de conexión ayudan a preservar caracteres especiales al exportar la variable en distintos shells.
 
-### 3. Ejecuci�n del Pipeline
+### 3. Ejecución del Pipeline
 
-`ash
-# Ejecuci�n completa (E-T-L)
+```bash
+# Ejecución completa (E-T-L)
 python notebooks/00_etl/01_run_etl.py
 
-# Ejecuci�n de Suite de Validaci�n
+# Validación de datos
 python notebooks/00_etl/02_run_validation.py
-`
-
-##  Impacto y Resultados
-
-El pipeline procesa y consolida **30 tablas anal�ticas** cubriendo indicadores cr�ticos (AROPE, Gini, IPC), garantizando una coherencia del **99.5%** entre fuentes nacionales (INE) y europeas (Eurostat).
-
-Para detalles metodol�gicos completos, ver [\docs/DICCIONARIO_DATOS.md\](docs/DICCIONARIO_DATOS.md).
-
-##  Contacto
-
-Este proyecto demuestra mi capacidad para construir infraestructura de datos s�lida y mantenible.
-
-**Autor:** Mario  
-**Enfoque:** Data Engineering, Data Quality, CI/CD.
+```
 
 ---
 
-### Licencia
+## 📊 Impacto y Resultados
 
-Este proyecto es de c�digo abierto y est� disponible bajo la licencia MIT.
+El pipeline procesa y consolida **30 tablas analíticas** con indicadores críticos (AROPE, Gini, IPC).  
+Se garantiza una coherencia del **99.5%** entre fuentes nacionales (INE) y europeas (Eurostat).
+
+📌 Más detalles en:  
+`docs/DICCIONARIO_DATOS.md`
+
+---
+
+## 📬 Contacto
+
+Este proyecto demuestra capacidades reales de **Data Engineering + Data Quality + CI/CD**.
+
+**Autor:** Mario  
+**Enfoque:** Ingeniería de Datos, Calidad del Dato, DevOps
+
+---
+
+## 📄 Licencia
+
+Este proyecto es de código abierto y está disponible bajo la licencia **MIT**.
