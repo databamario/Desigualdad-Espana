@@ -32,7 +32,7 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           # Install Microsoft ODBC Driver via Chocolatey on Windows runners
-          choco install microsoft-odbc-sqlserver --no-progress -y || choco upgrade microsoft-odbc-sqlserver -y --no-progress
+          choco install msodbcsql18 --no-progress -y || choco upgrade msodbcsql18 -y --no-progress
       # (Windows ODBC driver is installed above on Windows runners)
 
       - name: Install dependencies
@@ -143,7 +143,7 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           # Install Microsoft ODBC Driver via Chocolatey on Windows runners
-          choco install microsoft-odbc-sqlserver --no-progress -y || choco upgrade microsoft-odbc-sqlserver -y --no-progress
+          choco install msodbcsql18 --no-progress -y || choco upgrade msodbcsql18 -y --no-progress
 
       - name: Install dependencies
         run: |
