@@ -22,17 +22,24 @@ flowchart TD
   INE[INE] --> Extract
   EUROSTAT[Eurostat] --> Extract
   Extract --> Transform
-  Transform --> Validation
-  Validation -->|Pass| Load
-  Validation -->|Fail| Error
+  Transform --> Load
   Load --> SQLServer
-  Validation -.-> Logs
+  INE_VALID[Validación INE] -.-> INE
+  EUROSTAT_VALID[Validación EUROSTAT] -.-> EUROSTAT
+  INTEGRACION_VALID[Validación Integración] -.-> Load
+  INE_VALID --> Logs
+  EUROSTAT_VALID --> Logs
+  INTEGRACION_VALID --> Logs
 ```
 
 **Puntos clave del diseño:**
-- **Extract & Transform:** Normalización de fuentes dispares (API SDMX de Eurostat + CSV/JSON de INE) en estructuras pandas optimizadas.
-- **Validation Framework:** Verificación de integridad de esquema, reglas de negocio (ej. Gini 0–100) y continuidad temporal antes de la carga.
-- **Load (Idempotencia):** Procesos re-ejecutables evitando duplicidades ante fallos o reintentos.
+**Validación Modular:**
+- La validación se realiza en notebooks específicos:
+  - `02a_validacion_INE.ipynb`: valida tablas INE según reglas declarativas.
+  - `02b_validacion_EUROSTAT.ipynb`: valida tablas EUROSTAT según reglas declarativas.
+  - `02c_validacion_integracion.ipynb`: valida coherencia entre fuentes INE y EUROSTAT.
+- Los reportes se guardan en `data/validated/logs/` y no afectan la carga original.
+- No se valida automáticamente todas las tablas al subir datos; el proceso es explícito y modular.
 
 ---
 
