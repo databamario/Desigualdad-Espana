@@ -27,6 +27,15 @@ flowchart TD
     V -->|Fail| Alert[Log Error & Stop]
     L --> SQL[(SQL Server)]
     V -.-> Logs[Validation Logs]
+    INE[INE]
+    EURO[Eurostat]
+    E[Extract]
+    T[Transform]
+    V[Validation]
+    L[LoadToSQL]
+    Alert[LogError]
+    SQL[SQLServer]
+    Logs[ValidationLogs]
 ```
 
 **Puntos clave del diseño:**
