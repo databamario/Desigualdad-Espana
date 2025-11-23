@@ -19,23 +19,14 @@ El sistema desacopla estrictamente las responsabilidades para garantizar manteni
 
 ```mermaid
 flowchart TD
-    INE[INE (JSON/CSV)] --> E[Extract]
-    EURO[Eurostat (SDMX API)] --> E
-    E --> T[Transform]
-    T --> V[Validation]
-    V -->|Pass| L[Load to SQL]
-    V -->|Fail| Alert[Log Error & Stop]
-    L --> SQL[(SQL Server)]
-    V -.-> Logs[Validation Logs]
-    INE[INE]
-    EURO[Eurostat]
-    E[Extract]
-    T[Transform]
-    V[Validation]
-    L[LoadToSQL]
-    Alert[LogError]
-    SQL[SQLServer]
-    Logs[ValidationLogs]
+  INE[INE (JSON/CSV)] --> E[Extract]
+  EURO[Eurostat (SDMX API)] --> E
+  E --> T[Transform]
+  T --> V[Validation]
+  V -->|Pass| L[Load to SQL]
+  V -->|Fail| Alert[Log Error & Stop]
+  L --> SQL[(SQL Server)]
+  V -.-> Logs[Validation Logs]
 ```
 
 **Puntos clave del diseño:**
