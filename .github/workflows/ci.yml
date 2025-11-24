@@ -30,9 +30,16 @@ jobs:
           sudo apt-get install -y build-essential unixodbc-dev
       - name: Install ODBC Driver for SQL Server (Windows)
         if: runner.os == 'Windows'
+        shell: powershell
         run: |
-          # Install Microsoft ODBC Driver via Chocolatey on Windows runners
-          choco install msodbcsql18 --no-progress -y || choco upgrade msodbcsql18 -y --no-progress
+          # Download and install Microsoft ODBC Driver 18 for SQL Server (x64)
+          $installerUrl = "https://go.microsoft.com/fwlink/?linkid=2335671"
+          $installerPath = "$env:TEMP\msodbcsql.msi"
+          Write-Host "Downloading ODBC Driver 18 for SQL Server..."
+          Invoke-WebRequest -Uri $installerUrl -OutFile $installerPath
+          Write-Host "Installing ODBC Driver 18 for SQL Server..."
+          Start-Process msiexec.exe -ArgumentList "/i", $installerPath, "/qn", "IACCEPTMSODBCSQLLICENSETERMS=YES" -Wait -NoNewWindow
+          Write-Host "ODBC Driver 18 installed successfully"
       # (Windows ODBC driver is installed above on Windows runners)
 
       - name: Install dependencies
@@ -141,9 +148,16 @@ jobs:
           sudo apt-get install -y build-essential unixodbc-dev
       - name: Install ODBC Driver for SQL Server (Windows)
         if: runner.os == 'Windows'
+        shell: powershell
         run: |
-          # Install Microsoft ODBC Driver via Chocolatey on Windows runners
-          choco install msodbcsql18 --no-progress -y || choco upgrade msodbcsql18 -y --no-progress
+          # Download and install Microsoft ODBC Driver 18 for SQL Server (x64)
+          $installerUrl = "https://go.microsoft.com/fwlink/?linkid=2335671"
+          $installerPath = "$env:TEMP\msodbcsql.msi"
+          Write-Host "Downloading ODBC Driver 18 for SQL Server..."
+          Invoke-WebRequest -Uri $installerUrl -OutFile $installerPath
+          Write-Host "Installing ODBC Driver 18 for SQL Server..."
+          Start-Process msiexec.exe -ArgumentList "/i", $installerPath, "/qn", "IACCEPTMSODBCSQLLICENSETERMS=YES" -Wait -NoNewWindow
+          Write-Host "ODBC Driver 18 installed successfully"
 
       - name: Install dependencies
         run: |
