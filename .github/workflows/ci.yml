@@ -9,102 +9,78 @@ on:
     - cron: '0 2 * * *'  # Daily at 02:00 UTC
 
 jobs:
+  # ==============================================================================
+  # JOB 1: BUILD RÁPIDO (Solo Ubuntu)
+  # Valida que el código no rompa nada básico en cada Push/PR
+  # ==============================================================================
   build:
     runs-on: ubuntu-latest
     env:
-      # Inject DB connection string from GitHub secrets (set in repository settings)
       DB_CONNECTION_STRING: ${{ secrets.DB_CONNECTION_STRING }}
-      # Skip DB load if secret is empty OR contains placeholder values (localhost, tu-servidor, usuario, etc.)
       SKIP_DB_LOAD: ${{ secrets.DB_CONNECTION_STRING == '' || contains(secrets.DB_CONNECTION_STRING, 'localhost') || contains(secrets.DB_CONNECTION_STRING, 'tu-servidor') || contains(secrets.DB_CONNECTION_STRING, 'usuario') }}
     steps:
       - uses: actions/checkout@v4
+      
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
+          cache: 'pip' # Cache para acelerar instalación
+
       - name: Install system deps for pyodbc (Linux)
-        if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          # Install build deps so pyodbc can compile against unixodbc
           sudo apt-get install -y build-essential unixodbc-dev
-      - name: Install ODBC Driver for SQL Server (Windows)
-        if: runner.os == 'Windows'
-        shell: powershell
-        run: |
-          # Download and install Microsoft ODBC Driver 18 for SQL Server (x64)
-          $installerUrl = "https://go.microsoft.com/fwlink/?linkid=2335671"
-          $installerPath = "$env:TEMP\msodbcsql.msi"
-          Write-Host "Downloading ODBC Driver 18 for SQL Server..."
-          Invoke-WebRequest -Uri $installerUrl -OutFile $installerPath
-          Write-Host "Installing ODBC Driver 18 for SQL Server..."
-          Start-Process msiexec.exe -ArgumentList "/i", $installerPath, "/qn", "IACCEPTMSODBCSQLLICENSETERMS=YES" -Wait -NoNewWindow
-          Write-Host "ODBC Driver 18 installed successfully"
-      # (Windows ODBC driver is installed above on Windows runners)
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+
       - name: Install ODBC Driver for SQL Server (Linux)
-        if: runner.os == 'Linux'
         run: |
-          # Install pre-reqs and Microsoft package repo
-          sudo apt-get update
-          sudo apt-get install -y curl apt-transport-https gnupg
-          curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+          # Instalación segura y moderna de llaves GPG (evita warnings de apt-key)
+          curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
           curl https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
           sudo apt-get update
-          # Install ODBC Driver 18 (msodbcsql17 is deprecated for Ubuntu 24.04)
           sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18
-      # (Windows verify happens later once dependencies are installed)
-      - name: Verify ODBC driver and pyodbc availability (Linux)
-        if: runner.os == 'Linux'
+
+      - name: Verify ODBC driver and pyodbc availability
         run: |
-          echo "-- odbcinst -j (odbcinst info) --"
+          echo "-- odbcinst -j --"
           odbcinst -j || true
-          echo "-- odbcinst -q -d (drivers list) --"
-          odbcinst -q -d || true
-          echo "-- dpkg -l | grep msodbcsql --"
-          dpkg -l | grep msodbcsql || true
-          echo "-- ldconfig -p | grep msodbcsql --"
-          ldconfig -p | grep msodbcsql || true
-          echo "-- pyodbc drivers --"
-          python - <<'PY'
-          import pyodbc
-          print(pyodbc.drivers())
-          PY
-      - name: Verify ODBC driver on Windows and pyodbc availability (Windows)
-        if: runner.os == 'Windows'
-        shell: powershell
-        run: |
-          Write-Host "-- pyodbc drivers (PowerShell) --"
+          echo "-- Drivers disponibles --"
           python -c "import pyodbc; print(pyodbc.drivers())"
+
       - name: Ensure canonical year columns
         run: python scripts/ensure_anio_columns.py
+      
       - name: Normalize Tipo_Metrica
         run: python scripts/normalize_tipo_metrica.py
+      
       - name: Run ETL pipeline (generate pickles)
         run: python notebooks/00_etl/01_run_etl.py
+      
       - name: Run pickle checks
         run: python scripts/check_pickles.py
+      
       - name: Check pickles encoding
         run: python scripts/check_pickles_encoding.py
-      - name: Run full validation orchestrator (notebooks)
+      
+      - name: Run full validation orchestrator
         if: env.DB_CONNECTION_STRING != ''
         run: python notebooks/00_etl/02_run_validation.py
-      - name: Code quality checks (formatting & linting)
+      
+      - name: Code quality checks
         run: |
-          # Black (formatting) - fail CI if not formatted
           black --check --extend-exclude="templates/TEST_UNITARIOS_VALIDACION_TEMPLATE.py|tests/test_analysis_notebooks.py|tests/test_notebook_fixtures.py" .
-          # isort - check only
           isort --check-only --skip templates/TEST_UNITARIOS_VALIDACION_TEMPLATE.py --skip tests/test_analysis_notebooks.py --skip tests/test_notebook_fixtures.py .
-          # Flake8 (lint) - fail CI if lint issues
           flake8
-          # MyPy (type checking) - optional (silenced, fails on strong typing issues)
           mypy . || true
-      - name: Run tests
-        run: pytest -q || exit 0  # No fallar si no hay tests (todos ignorados actualmente)
+
+      - name: Run tests (Unitarios)
+        run: pytest -q || exit 0
+
       - name: Upload ETL results (Temporary)
         if: always()
         uses: actions/upload-artifact@v4
@@ -112,107 +88,119 @@ jobs:
           name: etl-pickles-build
           path: outputs/pickle_cache/
           retention-days: 3
-# hacer un test unitario del proyecto para asegurar la calidad del código y la integridad.
+
+  # ==============================================================================
+  # JOB 2: NIGHTLY ORCHESTRATOR (Matrix: Windows/Linux)
+  # Ejecuta pruebas exhaustivas cada noche
+  # ==============================================================================
   nightly_orchestrator:
     if: github.event_name == 'schedule'
     runs-on: ${{ matrix.os }}
     env:
       DB_CONNECTION_STRING: ${{ secrets.DB_CONNECTION_STRING }}
-      # Skip DB load if secret is empty OR contains placeholder values
-      SKIP_DB_LOAD: ${{ secrets.DB_CONNECTION_STRING == '' || contains(secrets.DB_CONNECTION_STRING, 'localhost') || contains(secrets.DB_CONNECTION_STRING, 'tu-servidor') || contains(secrets.DB_CONNECTION_STRING, 'usuario') }}
+      SKIP_DB_LOAD: ${{ secrets.DB_CONNECTION_STRING == '' || contains(secrets.DB_CONNECTION_STRING, 'localhost') || contains(secrets.DB_CONNECTION_STRING, 'tu-servidor') }}
     strategy:
+      fail-fast: false # Si falla Windows, que Linux termine (y viceversa)
       matrix:
         os: [ubuntu-latest, windows-latest]
         python-version: ['3.10', '3.11']
       
     steps:
-      - name: Check DB secret (strict for nightly)
+      - name: Check DB secret (Strict for nightly)
         if: env.DB_CONNECTION_STRING == ''
         run: |
-          echo "❌ ERROR CRÍTICO: El job nocturno debe tener acceso a la base de datos."
-          echo "   La variable DB_CONNECTION_STRING está vacía. Añade el secret en: Settings → Secrets and variables → Actions"
+          echo "❌ ERROR CRÍTICO: El job nocturno requiere DB_CONNECTION_STRING."
           exit 1
+
       - uses: actions/checkout@v4
+      
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install system deps for pyodbc (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          # Install build deps so pyodbc can compile against unixodbc
-          sudo apt-get install -y build-essential unixodbc-dev
-      - name: Install ODBC Driver for SQL Server (Windows)
-        if: runner.os == 'Windows'
-        shell: powershell
-        run: |
-          # Download and install Microsoft ODBC Driver 18 for SQL Server (x64)
-          $installerUrl = "https://go.microsoft.com/fwlink/?linkid=2335671"
-          $installerPath = "$env:TEMP\msodbcsql.msi"
-          Write-Host "Downloading ODBC Driver 18 for SQL Server..."
-          Invoke-WebRequest -Uri $installerUrl -OutFile $installerPath
-          Write-Host "Installing ODBC Driver 18 for SQL Server..."
-          Start-Process msiexec.exe -ArgumentList "/i", $installerPath, "/qn", "IACCEPTMSODBCSQLLICENSETERMS=YES" -Wait -NoNewWindow
-          Write-Host "ODBC Driver 18 installed successfully"
+          cache: 'pip'
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-      - name: Install ODBC Driver for SQL Server (Linux)
+      # --- SETUP LINUX ---
+      - name: Install system deps (Linux)
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y curl apt-transport-https gnupg
-          curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+          sudo apt-get install -y build-essential unixodbc-dev
+
+      - name: Install ODBC Driver 18 (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
           curl https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
           sudo apt-get update
           sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18
-      # (Windows ODBC driver already installed before dependencies)
-      - name: Verify ODBC driver and pyodbc availability (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          echo "-- odbcinst -j (odbcinst info) --"
-          odbcinst -j || true
-          echo "-- odbcinst -q -d (drivers list) --"
-          odbcinst -q -d || true
-          echo "-- dpkg -l | grep msodbcsql --"
-          dpkg -l | grep msodbcsql || true
-          echo "-- ldconfig -p | grep msodbcsql --"
-          ldconfig -p | grep msodbcsql || true
-          echo "-- pyodbc drivers --"
-          python - <<'PY'
-          import pyodbc
-          print(pyodbc.drivers())
-          PY
-      - name: Verify ODBC driver on Windows and pyodbc availability (Windows)
+
+      # --- SETUP WINDOWS ---
+      - name: Install ODBC Driver 18 (Windows)
         if: runner.os == 'Windows'
         shell: powershell
         run: |
-          Write-Host "-- pyodbc drivers (PowerShell) --"
+          $installerUrl = "https://go.microsoft.com/fwlink/?linkid=2335671"
+          $installerPath = "$env:TEMP\msodbcsql.msi"
+          Write-Host "Downloading ODBC Driver 18..."
+          Invoke-WebRequest -Uri $installerUrl -OutFile $installerPath
+          Write-Host "Installing..."
+          Start-Process msiexec.exe -ArgumentList "/i", $installerPath, "/qn", "IACCEPTMSODBCSQLLICENSETERMS=YES" -Wait -NoNewWindow
+          Write-Host "Done."
+
+      # --- DEPENDENCIAS COMUNES ---
+      - name: Install python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # --- VERIFICACIÓN DE DRIVERS ---
+      - name: Verify drivers (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          odbcinst -j || true
           python -c "import pyodbc; print(pyodbc.drivers())"
+
+      - name: Verify drivers (Windows)
+        if: runner.os == 'Windows'
+        shell: powershell
+        # CORREGIDO: Sintaxis compatible con PowerShell
+        run: |
+          Write-Host "-- pyodbc drivers --"
+          python -c "import pyodbc; print(pyodbc.drivers())"
+
+      # --- PIPELINE ---
       - name: Ensure canonical year columns
         run: python scripts/ensure_anio_columns.py
-      - name: Normalize Tipo_Metrica (in-place with backups)
+
+      - name: Normalize Tipo_Metrica (With Backup)
         run: |
           python scripts/normalize_tipo_metrica.py --in-place --backup-dir outputs/pickle_cache/backups/nightly-${{ github.run_id }}
-      - name: Run ETL pipeline (generate pickles)
+
+      - name: Run ETL pipeline
         run: python notebooks/00_etl/01_run_etl.py
+
       - name: Check pickles encoding
         run: python scripts/check_pickles_encoding.py
-      - name: Run full validation orchestrator (notebooks)
+
+      - name: Run full validation orchestrator
         if: env.DB_CONNECTION_STRING != ''
         run: python notebooks/00_etl/02_run_validation.py
-      - name: Code quality checks (formatting & linting)
+
+      # --- CALIDAD DE CÓDIGO (Optimizado) ---
+      - name: Code quality checks
+        # OPTIMIZACIÓN: Solo corre una vez por ejecución nocturna (Ubuntu + Py3.10)
+        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.10'
         run: |
           black --check --extend-exclude="templates/TEST_UNITARIOS_VALIDACION_TEMPLATE.py|tests/test_analysis_notebooks.py|tests/test_notebook_fixtures.py" .
           isort --check-only --skip templates/TEST_UNITARIOS_VALIDACION_TEMPLATE.py --skip tests/test_analysis_notebooks.py --skip tests/test_notebook_fixtures.py .
           flake8
           mypy . || true
-      - name: Run integration tests for analysis notebooks
+
+      - name: Run integration tests
         run: pytest tests/test_analysis_notebooks.py -q -m integration
-      - name: Upload ETL results (Temporary)
+
+      - name: Upload ETL results
         if: always()
         uses: actions/upload-artifact@v4
         with:
