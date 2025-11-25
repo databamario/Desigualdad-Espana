@@ -79,10 +79,7 @@ jobs:
         shell: powershell
         run: |
           Write-Host "-- pyodbc drivers (PowerShell) --"
-          python - <<'PY'
-          import pyodbc
-          print(pyodbc.drivers())
-          PY
+          python -c "import pyodbc; print(pyodbc.drivers())"
       - name: Ensure canonical year columns
         run: python scripts/ensure_anio_columns.py
       - name: Normalize Tipo_Metrica
@@ -194,10 +191,7 @@ jobs:
         shell: powershell
         run: |
           Write-Host "-- pyodbc drivers (PowerShell) --"
-          python - <<'PY'
-          import pyodbc
-          print(pyodbc.drivers())
-          PY
+          python -c "import pyodbc; print(pyodbc.drivers())"
       - name: Ensure canonical year columns
         run: python scripts/ensure_anio_columns.py
       - name: Normalize Tipo_Metrica (in-place with backups)
