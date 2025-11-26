@@ -1,8 +1,16 @@
 """
-Minimal integration tests for the analysis notebooks.
+Fast data structure validation tests for analysis notebooks.
 
-This module contains a minimal, focused test to verify the decile normalization helper
-and to assert that the pivot with columns D1..D10 is present for 2019 and 2023.
+This module provides lightweight tests that validate the structure and format
+of DataFrames loaded from pickle cache without executing full notebooks.
+
+Purpose:
+- Quick validation during development (~1 second)
+- Verifies decile column normalization (D1...D10)
+- Checks presence of required DataFrames in pickle cache
+- Ensures data structure consistency
+
+For full end-to-end notebook execution tests, see test_notebook_integration.py
 """
 
 from pathlib import Path
@@ -10,7 +18,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from src.notebook_fixtures import load_pickles_to_namespace, normalize_decile_columns
+from notebook_fixtures import load_pickles_to_namespace, normalize_decile_columns
 
 
 @pytest.mark.integration

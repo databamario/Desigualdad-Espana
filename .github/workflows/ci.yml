@@ -82,8 +82,8 @@ jobs:
       
       - name: Code quality checks
         run: |
-          black --check --extend-exclude="templates/TEST_UNITARIOS_VALIDACION_TEMPLATE.py|tests/test_analysis_notebooks.py|tests/test_notebook_fixtures.py" .
-          isort --check-only --skip templates/TEST_UNITARIOS_VALIDACION_TEMPLATE.py --skip tests/test_analysis_notebooks.py --skip tests/test_notebook_fixtures.py .
+          black --check --extend-exclude="templates/TEST_UNITARIOS_VALIDACION_TEMPLATE.py|tests/test_data_structure_validation.py|tests/test_notebook_fixtures.py" .
+          isort --check-only --skip templates/TEST_UNITARIOS_VALIDACION_TEMPLATE.py --skip tests/test_data_structure_validation.py --skip tests/test_notebook_fixtures.py .
           flake8
           mypy . || true
 
@@ -210,13 +210,13 @@ jobs:
         # OPTIMIZACIÓN: Solo corre una vez por ejecución nocturna (Ubuntu + Py3.10)
         if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.10'
         run: |
-          black --check --extend-exclude="templates/TEST_UNITARIOS_VALIDACION_TEMPLATE.py|tests/test_analysis_notebooks.py|tests/test_notebook_fixtures.py" .
-          isort --check-only --skip templates/TEST_UNITARIOS_VALIDACION_TEMPLATE.py --skip tests/test_analysis_notebooks.py --skip tests/test_notebook_fixtures.py .
+          black --check --extend-exclude="templates/TEST_UNITARIOS_VALIDACION_TEMPLATE.py|tests/test_data_structure_validation.py|tests/test_notebook_fixtures.py" .
+          isort --check-only --skip templates/TEST_UNITARIOS_VALIDACION_TEMPLATE.py --skip tests/test_data_structure_validation.py --skip tests/test_notebook_fixtures.py .
           flake8
           mypy . || true
 
       - name: Run integration tests
-        run: pytest tests/test_analysis_notebooks.py -q -m integration
+        run: pytest tests/test_data_structure_validation.py -q -m integration
 
       - name: Upload ETL results
         if: always()

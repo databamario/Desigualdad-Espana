@@ -1,6 +1,6 @@
 import pandas as pd
 
-from src.notebook_fixtures import (
+from notebook_fixtures import (
     normalize_columns,
     normalize_decile_columns,
     normalize_umbral_dataframe,
@@ -10,7 +10,9 @@ from src.notebook_fixtures import (
 def test_normalize_columns_anio_alias():
     df = pd.DataFrame({"Anio": [2019, 2020], "Inflacion_Anual_%": [1.0, 2.0]})
     df2 = normalize_columns(df)
-    assert "Año" in df2.columns and "Anio" in df2.columns
+    # Verify that only 'Anio' exists (ASCII-safe), and IPC_Medio_Anual alias was created
+    assert "Anio" in df2.columns
+    assert "IPC_Medio_Anual" in df2.columns
 
 
 def test_normalize_umbral_pobreza_euros_alias():

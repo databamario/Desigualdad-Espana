@@ -1,3 +1,18 @@
+"""
+Full end-to-end integration tests for analysis notebooks.
+
+This module executes complete notebooks and validates their outputs, including
+cell execution, data transformations, and result validation.
+
+Purpose:
+- End-to-end notebook execution testing (~20 minutes)
+- Validates notebook cell execution with injected fixtures
+- Ensures notebooks produce correct outputs with real data
+- Integration testing for CI/CD pipelines
+
+For fast structure validation without notebook execution, see test_data_structure_validation.py
+"""
+
 import json
 import shutil
 from pathlib import Path
@@ -7,7 +22,7 @@ import pandas as pd
 import pytest
 from nbclient import NotebookClient
 
-from src.notebook_fixtures import normalize_decile_columns
+from notebook_fixtures import normalize_decile_columns
 
 
 def run_notebook(nb_path: Path):
